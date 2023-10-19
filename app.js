@@ -1,18 +1,38 @@
 intervals = [
-    // ['walk', 120],
-    // ['run', 300],
-    // ['walk', 120],
-    // ['run', 300],
-    ['walk', 1],
-    ['run', 5],
-    ['walk', 2]
+    ['run', 60],
+    ['walk', 90],
+    ['run', 60],
+    ['walk', 90],
+    ['run', 60],
+    ['walk', 90],
+    ['run', 60],
+    ['walk', 90],
+    ['run', 60],
+    ['walk', 90],
+    ['run', 60],
+    ['walk', 90],
+    ['run', 60],
+    ['walk', 90],
+    ['run', 60],
+    ['walk', 90]
+
+    // ['walk', 1],
+    // ['run', 5],
+    // ['walk', 2]
 ]
+
+var timerText = $('#timer-text');
+var exerciseText = $('#exercise-text');
+var startStopButton = $('#stop-start');
+var startStopButtonLabel = $('#stop-start-label');
+var startStopButtonIcon = $('#stop-start-icon');
+
+
 
 var interval = 0;
 var isStopped = true;
 var timer; // tenth of seconds
 
-// 1200 => 2 mins
 
 // https://stackoverflow.com/questions/20618355/how-to-write-a-countdown-timer-in-javascript
 function updateTimer() {
@@ -22,8 +42,8 @@ function updateTimer() {
     minutes = minutes < 10 ? "0" + minutes : minutes;
     seconds = seconds < 10 ? "0" + seconds : seconds;
 
-    $('#timer').text(minutes + ":" + seconds);
-    $('#exercise').text(capitalizeFirstLetter(exercise) + " cycle");
+    timerText.text(minutes + ":" + seconds);
+    exerciseText.text(capitalizeFirstLetter(exercise) + " cycle");
 
     timer -= 1;
     if (timer < 0) {
@@ -33,8 +53,8 @@ function updateTimer() {
         }
         else {
             clearInterval(timerInterval);
-            $('#timer').text();
-            $('#exercise').text('Workout completed. Congratulations!');
+            timerText.text();
+            exerciseText.text('Workout completed. Congratulations!');
         }
     }
 }
@@ -57,7 +77,22 @@ $("#stop-start").on("click", () => {
     }
 
     isStopped = !isStopped;
+    toggleButtonDisplay();
 });
+
+function toggleButtonDisplay() {
+    startStopButton.toggleClass("btn-success");
+    startStopButton.toggleClass("btn-danger");
+    startStopButtonIcon.toggleClass("fa-play");
+    startStopButtonIcon.toggleClass("fa-pause");
+
+    if (isStopped) {
+        startStopButtonLabel.text("Play");
+    }
+    else {
+        startStopButtonLabel.text("Pause");
+    }
+}
 
 /*
     Helpers
