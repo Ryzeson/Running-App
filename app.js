@@ -86,7 +86,6 @@ function toggleButtonDisplay() {
 function updateProgressBar() {
     let percentage = ((totalTimeElapsed * 100) / totalWorkoutTime) / 100;
     let width = percentage + '%';
-    console.log(width);
     progressBar.css('width', width);
 }
 
@@ -133,4 +132,11 @@ function init() {
     updateInterval();
 }
 
+function parseJSON() {
+    fetch("https://www.ryzeson.org/Running-App/program_json/test.json")
+  .then(response => response.json())
+  .then(json => console.log(json));
+}
+
 init();
+parseJSON();

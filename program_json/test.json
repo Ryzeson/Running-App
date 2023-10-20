@@ -1,0 +1,33 @@
+{
+    "workouts": [
+      {
+        "id": 1,
+        "desc": "Run 1 min and a half, walk 1 minute for 20 mintues",
+        "intervals": [
+          ["run", 60],
+          ["walk", 90],
+          ["run", 60],
+          ["walk", 90],
+          ["run", 60],
+          ["walk", 90],
+          ["run", 60],
+          ["walk", 90],
+          ["run", 60],
+          ["walk", 90],
+          ["run", 60],
+          ["walk", 90],
+          ["run", 60],
+          ["walk", 90],
+          ["run", 60],
+          ["walk", 90]
+        ]
+      },
+      {
+        "id": 2,
+        "desc": "Run 10 minutes",
+        "intervals": [
+          ["run", 600]
+        ]
+      }
+    ]
+  }
