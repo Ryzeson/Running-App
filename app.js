@@ -26,12 +26,13 @@ var exerciseText = $('#exercise-text');
 var startStopButton = $('#stop-start');
 var startStopButtonLabel = $('#stop-start-label');
 var startStopButtonIcon = $('#stop-start-icon');
-
+var progressBar = $('#progress-bar');
 
 
 var interval = 0;
 var isStopped = true;
-var timer; // tenth of seconds
+var timer; // in hundredth seconds
+var totalTimeElapsed = 0; // in hundredth seconds
 
 
 // https://stackoverflow.com/questions/20618355/how-to-write-a-countdown-timer-in-javascript
@@ -45,7 +46,11 @@ function updateTimer() {
     timerText.text(minutes + ":" + seconds);
     exerciseText.text(capitalizeFirstLetter(exercise) + " cycle");
 
-    timer -= 1;
+    timer--;
+    totalTimeElapsed++;
+
+    updateProgressBar();
+
     if (timer < 0) {
         interval++;
         if (interval < intervals.length) {
@@ -64,6 +69,35 @@ function updateInterval() {
     timer = intervals[interval][1] * 100;
 }
 
+function toggleButtonDisplay() {
+    startStopButton.toggleClass("btn-success");
+    startStopButton.toggleClass("btn-danger");
+    startStopButtonIcon.toggleClass("fa-play");
+    startStopButtonIcon.toggleClass("fa-pause");
+
+    if (isStopped) {
+        startStopButtonLabel.text("Play");
+    }
+    else {
+        startStopButtonLabel.text("Pause");
+    }
+}
+
+function updateProgressBar() {
+    let percentage = ((totalTimeElapsed * 100) / totalWorkoutTime) / 100;
+    let width = percentage + '%';
+    console.log(width);
+    progressBar.css('width', width);
+}
+
+function calculateTotalWorkoutTime() {
+    let sum = 0;
+    intervals.forEach(element => {
+        sum += element[1];
+    });
+    totalWorkoutTime = sum;
+}
+
 /*
     Listeners
 */
@@ -80,19 +114,6 @@ $("#stop-start").on("click", () => {
     toggleButtonDisplay();
 });
 
-function toggleButtonDisplay() {
-    startStopButton.toggleClass("btn-success");
-    startStopButton.toggleClass("btn-danger");
-    startStopButtonIcon.toggleClass("fa-play");
-    startStopButtonIcon.toggleClass("fa-pause");
-
-    if (isStopped) {
-        startStopButtonLabel.text("Play");
-    }
-    else {
-        startStopButtonLabel.text("Pause");
-    }
-}
 
 /*
     Helpers
@@ -108,8 +129,8 @@ function capitalizeFirstLetter(string) {
 */
 
 function init() {
+    calculateTotalWorkoutTime();
     updateInterval();
-    console.log(timer);
 }
 
 init();
