@@ -7,10 +7,14 @@ var progressBar = $('#progress-bar');
 
 
 var interval = 0;
-var intervals;
 var isStopped = true;
 var timer; // in hundredth seconds
 var totalTimeElapsed = 0; // in hundredth seconds
+
+// Save workout information
+var id;
+var desc;
+var intervals;
 
 
 // https://stackoverflow.com/questions/20618355/how-to-write-a-countdown-timer-in-javascript
@@ -61,6 +65,12 @@ function toggleButtonDisplay() {
     }
 }
 
+function displayWorkoutName() {
+    let textToDisplay = "Day " + id + ": " + desc;
+    console.log(textToDisplay);
+    timerText.text(textToDisplay);
+}
+
 function updateProgressBar() {
     let percentage = ((totalTimeElapsed * 100) / totalWorkoutTime) / 100;
     let width = percentage + '%';
@@ -80,6 +90,9 @@ function calculateTotalWorkoutTime() {
 */
 
 $("#stop-start").on("click", () => {
+    if (totalTimeElapsed == 0)
+        $("div.progress").toggleClass("invisible");
+
     if (isStopped)
         timerInterval = setInterval(updateTimer, 10);
     else
@@ -116,29 +129,20 @@ function getQueryVariable(variable) {
     Initialization
 */
 
-function init() {
-    parseJSON();
+function setUpTimer(data) {
+    let workoutID = getQueryVariable('workoutID');
+    id = data.workouts[workoutID - 1].id;
+    desc = data.workouts[workoutID - 1].desc;
+    let intervalsFromJSON = data.workouts[workoutID - 1].intervals;
+    intervals = intervalsFromJSON;
+
+    displayWorkoutName();
+    calculateTotalWorkoutTime();
+    updateInterval();
 }
 
-async function parseJSON() {
-    // fetch("https://www.ryzeson.org/Running-App-dummy/program_files/test.json")
-    fetch("https://www.ryzeson.org/Running-App/program_json/5k.json")
-        .then(response => {
-            console.log(response);
-            return response.json(); // multiple line function, so you need to explicitly return the promise to continue the promise/then() chain
-        })
-        .then(data => {
-            let workoutID = getQueryVariable('workoutID');
-            let intervalsFromJSON = data.workouts[workoutID - 1].intervals;
-            intervals = intervalsFromJSON;
-
-            calculateTotalWorkoutTime();
-            updateInterval();
-        });
-    // Similar to above, but using async/await, which will exhibit blocking (synchronous) behavior within this function
-    // const response = await fetch("https://www.ryzeson.org/Running-App/program_json/test.json");
-    // const json = await response.json();
-    // console.log(json);
+function init() {
+    parseJSON(setUpTimer);
 }
 
 init();
