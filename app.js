@@ -1,142 +1,56 @@
-intervals = [
-    ['run', 60],
-    ['walk', 90],
-    ['run', 60],
-    ['walk', 90],
-    ['run', 60],
-    ['walk', 90],
-    ['run', 60],
-    ['walk', 90],
-    ['run', 60],
-    ['walk', 90],
-    ['run', 60],
-    ['walk', 90],
-    ['run', 60],
-    ['walk', 90],
-    ['run', 60],
-    ['walk', 90]
+async function parseJSON() {
+    // fetch("https://www.ryzeson.org/Running-App-dummy/program_files/test.json")
+    fetch("https://www.ryzeson.org/Running-App/program_json/5k.json")
+        .then(response => {
+            console.log(response);
+            return response.json(); // multiple line function, so you need to explicitly return the promise to continue the promise/then() chain
+        })
+        .then(data => {
+            console.log(data);
+            let table = generateTable(data);
+            $(".table").html(table);
 
-    // ['walk', 1],
-    // ['run', 5],
-    // ['walk', 2]
-]
+            attachTDListener();
+        });
 
-var timerText = $('#timer-text');
-var exerciseText = $('#exercise-text');
-var startStopButton = $('#stop-start');
-var startStopButtonLabel = $('#stop-start-label');
-var startStopButtonIcon = $('#stop-start-icon');
-var progressBar = $('#progress-bar');
+    // Similar to above, but using async/await, which will exhibit blocking (synchronous) behavior within this function
+    // const response = await fetch("https://www.ryzeson.org/Running-App/program_json/test.json");
+    // const json = await response.json();
+    // console.log(json);
+}
 
+function generateTable(data) {
+    const rowLength = 7;
+    var currentRow = 0;
 
-var interval = 0;
-var isStopped = true;
-var timer; // in hundredth seconds
-var totalTimeElapsed = 0; // in hundredth seconds
-
-
-// https://stackoverflow.com/questions/20618355/how-to-write-a-countdown-timer-in-javascript
-function updateTimer() {
-    minutes = parseInt(timer / 6000);
-    seconds = parseInt((timer % 6000) / 100);
-
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-
-    timerText.text(minutes + ":" + seconds);
-    exerciseText.text(capitalizeFirstLetter(exercise) + " cycle");
-
-    timer--;
-    totalTimeElapsed++;
-
-    updateProgressBar();
-
-    if (timer < 0) {
-        interval++;
-        if (interval < intervals.length) {
-            updateInterval();
+    let table = '<table>';
+    table += '<tr><th colspan="7"></th></tr>';
+    data.workouts.forEach(workout => {
+        let rowNum = Math.floor((workout.id - 1) / rowLength);
+        if (rowNum > currentRow) {
+            currentRow++;
+            table += '<tr>';
         }
-        else {
-            clearInterval(timerInterval);
-            timerText.text();
-            exerciseText.text('Workout completed. Congratulations!');
-        }
-    }
-}
-
-function updateInterval() {
-    exercise = intervals[interval][0];
-    timer = intervals[interval][1] * 100;
-}
-
-function toggleButtonDisplay() {
-    startStopButton.toggleClass("btn-success");
-    startStopButton.toggleClass("btn-danger");
-    startStopButtonIcon.toggleClass("fa-play");
-    startStopButtonIcon.toggleClass("fa-pause");
-
-    if (isStopped) {
-        startStopButtonLabel.text("Play");
-    }
-    else {
-        startStopButtonLabel.text("Pause");
-    }
-}
-
-function updateProgressBar() {
-    let percentage = ((totalTimeElapsed * 100) / totalWorkoutTime) / 100;
-    let width = percentage + '%';
-    progressBar.css('width', width);
-}
-
-function calculateTotalWorkoutTime() {
-    let sum = 0;
-    intervals.forEach(element => {
-        sum += element[1];
+        let id = `id=${workout.id}`;
+        let classValue = "";
+        if (workout.intervals != undefined)
+            classValue = 'stopwatch';
+        let classDef = 'class=' + classValue;
+        table += `<td ${id} ${classDef}>${workout.desc}</td>`; // add the workout id to the <td> element
     });
-    totalWorkoutTime = sum;
+    table += '</table>';
+
+
+    return table;
 }
 
-/*
-    Listeners
-*/
-
-$("#stop-start").on("click", () => {
-    if (isStopped) {
-        timerInterval = setInterval(updateTimer, 10);
-    }
-    else {
-        clearInterval(timerInterval);
-    }
-
-    isStopped = !isStopped;
-    toggleButtonDisplay();
-});
-
-
-/*
-    Helpers
-*/
-
-// https://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
-function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+function attachTDListener() {
+    $("td").on("click", e => {
+        console.log("click " + e.target.id);
+        console.log(e.target.className);
+        if (e.target.className == "stopwatch")
+            window.location = 'https://www.ryzeson.org/Running-App/stopwatch.html?workoutID=' + e.target.id;
+    });
 }
 
-/*
-    Initialization
-*/
-
-function init() {
-    calculateTotalWorkoutTime();
-    updateInterval();
-}
-
-function parseJSON() {
-    fetch("https://www.ryzeson.org/Running-App/program_json/test.json")
-  .then(response => response.json())
-  .then(json => console.log(json));
-}
-
-init();
 parseJSON();

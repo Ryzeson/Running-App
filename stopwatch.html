@@ -18,14 +18,22 @@
 <body>
 
     <div class="container text-center mt-5 app-container">
-        <h2>5k Training Plan</h2>
-        <div class="table"></div>
+        <div class="timer">
+            <h1 id="timer-text"></h1>
+        </div>
+        <div class="exercise">
+            <h2 id="exercise-text"></h2>
+        </div>
+        <div class="progress">
+            <div id="progress-bar"></div>
+        </div>
+        <div class="btn btn-success mt-2" id="stop-start"><span id="stop-start-label">Start</span><i class="fa-solid fa-play" id="stop-start-icon"></i></div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="app.js"></script>
+    <script src="stopwatch.js"></script>
 </body>
 
 </html>

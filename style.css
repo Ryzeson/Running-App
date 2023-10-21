@@ -26,6 +26,40 @@ span {
     /* background-color: #E0ACEC; */ 
 }
 
+table {
+    border-collapse: collapse;
+    width: 100%;
+    border-spacing: 0;
+    border: 2px solid grey;
+    margin: auto;
+  }
+  
+  /* Header row */
+  th {
+    background-color: #333;
+    color: #fff;
+  }
+
+  tr {
+    background-color: lightgrey;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  td {
+    width: 14.2857%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  td:hover {
+    background-color: #ddd;
+    transition: background-color 0.3s;
+  }
+
 /* .app-container {
     border: 2px solid black;
 } */
