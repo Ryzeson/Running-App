@@ -3,7 +3,7 @@
 }
 
 body {
-    background-color: lightgrey;
+    background-color: rgb(249, 240, 240);
 }
 
 span {
@@ -11,7 +11,7 @@ span {
 }
 
 .progress {
-    border: 2px solid black;
+    border: 2px solid rgb(0, 0, 0);
     border-radius: 15px;
     height: 15px;
     width: 100%;
@@ -40,24 +40,40 @@ table {
     color: #fff;
   }
 
-  tr {
-    background-color: lightgrey;
-  }
-  
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
   td {
     width: 14.2857%;
+    height: 120px;
     padding: 8px;
     border: 1px solid #ddd;
     text-align: center;
+    background-color: #f2f2f2;
+
+  }
+
+  td.stopwatch {
+    background-color: rgb(184, 184, 184);
+  }
+
+  td.stopwatch:hover {
+    cursor: pointer;
   }
   
   td:hover {
     background-color: #ddd;
     transition: background-color 0.3s;
+  }
+
+  /* td.week-heading span {
+    -webkit-transform: rotate(270deg);
+    display: block;
+    margin-top: 99%;
+  } */
+
+  td.week-heading {
+    width: 10px;
+    text-wrap: none;
+    color: #fff;
+    background-color: #333;
   }
 
 /* .app-container {

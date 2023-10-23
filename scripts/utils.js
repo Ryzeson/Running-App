@@ -6,7 +6,7 @@ function parseJSON(callback) {
     // fetch("https://www.ryzeson.org/Running-App-dummy/program_files/test.json")
     fetch("https://www.ryzeson.org/Running-App/program_json/5k.json")
         .then(response => {
-            console.log(response);
+            // console.log(response);
             return response.json(); // multiple line function, so you need to explicitly return the promise to continue the promise/then() chain
         })
         .then(data => {

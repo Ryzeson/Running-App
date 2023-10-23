@@ -26,7 +26,7 @@ function updateTimer() {
     seconds = seconds < 10 ? "0" + seconds : seconds;
 
     timerText.text(minutes + ":" + seconds);
-    exerciseText.text(capitalizeFirstLetter(exercise) + " cycle");
+    exerciseText.text(capitalizeFirstLetter(exercise) + " Cycle");
 
     timer--;
     totalTimeElapsed++;
@@ -37,11 +37,13 @@ function updateTimer() {
         interval++;
         if (interval < intervals.length) {
             updateInterval();
+            playAudio();
         }
         else {
             clearInterval(timerInterval);
             timerText.text();
             exerciseText.text('Workout completed. Congratulations!');
+            new Audio("audio/Workout_Complete.mp3").play();
         }
     }
 }
@@ -49,6 +51,14 @@ function updateTimer() {
 function updateInterval() {
     exercise = intervals[interval][0];
     timer = intervals[interval][1] * 100;
+}
+function playAudio() {
+    if (exercise == 'run') {
+        new Audio("audio/Begin_Running.mp3").play();
+    }
+    else {
+        new Audio("audio/Begin_Walking.mp3").play();
+    }
 }
 
 function toggleButtonDisplay() {
@@ -67,7 +77,6 @@ function toggleButtonDisplay() {
 
 function displayWorkoutName() {
     let textToDisplay = "Day " + id + ": " + desc;
-    console.log(textToDisplay);
     timerText.text(textToDisplay);
 }
 
@@ -90,8 +99,11 @@ function calculateTotalWorkoutTime() {
 */
 
 $("#stop-start").on("click", () => {
-    if (totalTimeElapsed == 0)
+    // Pressing 'Play' for the first time
+    if (totalTimeElapsed == 0) {
+        playAudio();
         $("div.progress").toggleClass("invisible");
+    }
 
     if (isStopped)
         timerInterval = setInterval(updateTimer, 10);
