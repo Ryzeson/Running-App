@@ -9,7 +9,7 @@ function generateTable(data) {
         let rowNum = Math.floor((workout.id - 1) / rowLength);
         if (rowNum > currentRow) {
             currentRow++;
-            let weekNum = parseInt(currentRow)+1;
+            let weekNum = parseInt(currentRow) + 1;
             table += '<tr><td class="week-heading"><span>Week ' + weekNum + '</span></td>';
         }
         let id = `id=${workout.id}`;
@@ -27,9 +27,18 @@ function generateTable(data) {
 
 function attachTDListener() {
     $("td").on("click", e => {
-        console.log(e.target.className);
-        if (e.target.className == "stopwatch")
-            window.location = 'https://www.ryzeson.org/Running-App/stopwatch.html?workoutID=' + e.target.id;
+        let target = e.target;
+        let tdOptions = $(target).html();
+        tdOptions += '<form id="form" action="" method="get" onChange="this.form.submit()">';
+        tdOptions += 'Completed: <input type="checkbox" name="isCompleted"></input>';
+        tdOptions += '</form>';
+        tdOptions += '<button>Go to Workout</button>';
+        console.log(target);
+        $(target).html(tdOptions);
+        console.log(tdOptions);
+
+        // if (e.target.className == "stopwatch")
+        //     window.location = 'https://www.ryzeson.org/Running-App/stopwatch.html?workoutID=' + e.target.id;
     });
 }
 
