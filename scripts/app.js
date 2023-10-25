@@ -26,16 +26,31 @@ function generateTable(data) {
 }
 
 function attachTDListener() {
-    $("td").on("click", e => {
-        let target = e.target;
-        let tdOptions = $(target).html();
-        tdOptions += '<form id="form" action="" method="get" onChange="this.form.submit()">';
-        tdOptions += 'Completed: <input type="checkbox" name="isCompleted"></input>';
-        tdOptions += '</form>';
-        tdOptions += '<button>Go to Workout</button>';
+    // $(this) with arrow syntax (=?) was not working; was returning the entire window
+
+    $("td.stopwatch").on("click", function (e) {
+        let target = e.target.tagName;
         console.log(target);
-        $(target).html(tdOptions);
-        console.log(tdOptions);
+        // If the actual element that was clicked was the form or button, handle this normally
+        if (target == 'INPUT' || target == 'A' || target == 'FORM') {
+            console.log("Doing nothing");
+        }
+        // otherwise, add the completed checkbox and button to the cell if it is not there, or remove it if it is
+        else {
+            if ($(this).children().length > 0) {
+                while ($(this).children().length != 0)
+                    $(this).children().eq(0).remove();
+            }
+            else {
+                let workoutID = this.id;
+                let tdOptions = $(this).html();
+                tdOptions += '<form id="form" action="" method="get" onChange="this.form.submit()">';
+                tdOptions += 'Completed: <input type="checkbox" name="isCompleted"></input>';
+                tdOptions += '</form>';
+                tdOptions += `<a type="button" href="https://www.ryzeson.org/Running-App/stopwatch.html?workoutID=${workoutID}">Go to Workout</a>`;
+                $(this).html(tdOptions);
+            }
+        }
 
         // if (e.target.className == "stopwatch")
         //     window.location = 'https://www.ryzeson.org/Running-App/stopwatch.html?workoutID=' + e.target.id;
