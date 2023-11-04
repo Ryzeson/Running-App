@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Example</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                Row 1
+            </div>
+            <div class="col-md-6">
+                <form name="login" method="POST" action="/login">
+                    Username<br><input type="text" name="username" required ><br>
+                    Password<br><input type="password" name="password" required ><br>
+                    <input type="submit" value="Login">
+                </form>
+                If you do not have an account, <a href="/signup">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
