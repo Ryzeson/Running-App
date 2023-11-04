@@ -1,9 +1,17 @@
+:root {
+  --main-bg-color: #EAE0CC;
+  --color2: #C9ADA1;
+  --color3: #A0A083;
+  --color4: #798478;
+  --color5: #4D6A6D;
+}
+
 * {
     font-family: 'Quicksand', sans-serif;
 }
 
 body {
-    background-color: rgb(249, 240, 240);
+    background-color: var(--main-bg-color);
 }
 
 span {
@@ -51,7 +59,7 @@ table {
   }
 
   td.stopwatch {
-    background-color: rgb(184, 184, 184);
+    background-color: var(--main-bg-color);
   }
 
   td.stopwatch:hover {
@@ -77,7 +85,7 @@ table {
   }
 
   /* for workout buttons */
-  a {
+  a.workout {
     display: inline-block;
     font-weight: 400;
     text-align: center;
@@ -97,10 +105,35 @@ table {
     border-color: #f8f9fa;
   }
 
-  a:hover {
+  a.workout:hover {
     color: #212529;
+  }
+
+  a.button {
+    font-weight: 500;
+    color: var(--color5);
+    text-align: center;
+    user-select: none;
   }
 
 /* .app-container {
     border: 2px solid black;
 } */
+
+.center-container {
+  margin-top: 20vh; /* Move this content down, starting at 20% of the screen height */
+}
+
+input.submit {
+  margin-top: 2%;
+}
+
+.small-text {
+  margin-top: 2%;
+  font-size: .9em;
+}
+
+ol {
+  margin-top: 0;
+  margin-bottom: 0;
+}

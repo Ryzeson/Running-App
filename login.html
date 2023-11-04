@@ -8,26 +8,28 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="container center-container">
         <div class="row">
             <div class="col-md-6">
-                Row 1
+                <h1>Running App</h1>
             </div>
             <div class="col-md-6">
                 <form name="login" method="POST" action="/login">
                     Username<br><input type="text" name="username" required ><br>
                     Password<br><input type="password" name="password" required ><br>
-                    <input type="submit" value="Login">
+                    <input class="submit" type="submit" value="Login">
                 </form>
-                If you do not have an account, <a href="/signup">Sign Up</a>
+                <p class="small-text">If you do not have an account, <a class="button" href="/signup">Sign Up</a></p>
             </div>
         </div>
     </div>
+
 
 </body>
 

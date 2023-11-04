@@ -10,8 +10,8 @@ app.set('view engine', 'ejs'); // Look in the folder called 'views'
 const nodemailer = require('nodemailer'); // For sending emails
 const bcrypt = require('bcrypt'); // For hasing passwords
 const saltRounds = 12; // Salt added to initial password before decryption. rounds=12: 2-3 hashes/sec (https://blog.logrocket.com/password-hashing-node-js-bcrypt/#auto-generating-salt-hash)
-
-const { Pool } = require('pg');
+const { Pool } = require('pg'); // Package for connecting to Postgres db
+app.use(express.static('public')); // Allows express to serve static files, which should be stored in a folder called 'public'
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -56,7 +56,7 @@ app.post("/login", function (req, res) {
 
                     bcrypt.compare(form_password, hash, function(err, result) {
                         if (result && db_verified == 'Y') {
-                            res.render("login_success", { username: usernmae });
+                            res.render("index", { username: usernmae });
                         }
                         else {
                             var reasonMsg;
@@ -72,7 +72,7 @@ app.post("/login", function (req, res) {
                     
                 })
                 .catch(queryError => {
-                    // It is possible that the client was already released in the previous then block, so try catch this release()
+                    // It is possible that the client was already released in the previous then block, so try/catch this release()
                     try {
                         client.release();
                     }
@@ -138,8 +138,8 @@ app.post('/signup', (req, res) => {
                 });
             }
             else {
-                console.log("Failure");
-                return res.sendFile(__dirname + '/signup.html');
+                console.log("Username already taken");
+                res.sendFile(__dirname + '/signup.html');
             }
         })
 

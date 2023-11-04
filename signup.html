@@ -8,27 +8,48 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="container center-container">
         <div class="row">
             <div class="col-md-6">
-                Main Page
+                <h2>Register to track your workouts:</h2>
             </div>
             <div class="col-md-6">
                 <form name="signup" method="POST" action="/signup">
                     Username<br><input type="text" name="username" required><br>
                     Password<br><input type="password" name="password" required><br>
-                    Email<br><input type="email" name="email" required><br>
-                    <input type="submit" value="Sign Up">
+                    Email<br><input type="email" name="email" required>
+                    <a tabindex="0" class="submit" role="button" data-toggle="popover"
+                                data-trigger="focus" data-html="true"
+                                data-content="Why does this app need my email?
+                                Two reasons: <ol><li> To verify you are a real user and not a robot.</li>
+                                    <li>To have a method to reset your password in case it is lost or stolen.</li></ol>
+                                    This app will never send you any unwarranted emails.">
+                                <i class="fa-solid fa-circle-info"></i></a>
+                            <br>
+                    <input class="submit" type="submit" value="Sign Up">
                 </form>
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+    $('[data-toggle="popover"]').popover();
+});
 
+$('.popover-dismiss').popover({
+    trigger: 'focus'
+})
+    </script>
 </body>
 
 </html>
