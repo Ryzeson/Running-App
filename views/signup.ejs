@@ -24,16 +24,21 @@
                 <form name="signup" method="POST" action="/signup">
                     Username<br><input type="text" name="username" required><br>
                     Password<br><input type="password" name="password" required><br>
+                    Confirm password<br><input type="password" name="confirm-password" required><br>
                     Email<br><input type="email" name="email" required>
                     <a tabindex="0" class="submit" role="button" data-toggle="popover"
                                 data-trigger="focus" data-html="true"
                                 data-content="Why does this app need my email?
-                                Two reasons: <ol><li> To verify you are a real user and not a robot.</li>
+                                <ol><li> To verify you are a real user and not a robot.</li>
                                     <li>To have a method to reset your password in case it is lost or stolen.</li></ol>
                                     This app will never send you any unwarranted emails.">
                                 <i class="fa-solid fa-circle-info"></i></a>
                             <br>
-                    <input class="submit" type="submit" value="Sign Up">
+                    <input class="submit" type="submit" name="submit" value="Sign Up">
+                    <p class="small-text hidden" id="passwords-not-match-text">Passwords do not match</p>
+                    <% if(locals.text) { %>
+                        <p class="small-text"><%= text%></p>
+                    <% } %>
                 </form>
             </div>
         </div>
@@ -41,15 +46,10 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        $(function () {
-    $('[data-toggle="popover"]').popover();
-});
+    <script src="scripts/signup.js"></script>
+    <script src="scripts/utils.js"></script>
 
-$('.popover-dismiss').popover({
-    trigger: 'focus'
-})
-    </script>
+
 </body>
 
 </html>

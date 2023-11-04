@@ -47,7 +47,8 @@ function attachTDListener() {
                 tdOptions += '<form id="form" action="" method="get" onChange="this.form.submit()">';
                 tdOptions += 'Completed: <input type="checkbox" name="isCompleted"></input>';
                 tdOptions += '</form>';
-                tdOptions += `<a class="workout" type="button" href="https://www.ryzeson.org/Running-App/stopwatch.html?workoutID=${workoutID}">Go to Workout</a>`;
+                // tdOptions += `<a class="workout" type="button" href="https://www.ryzeson.org/Running-App/stopwatch.html?workoutID=${workoutID}">Go to Workout</a>`;
+                tdOptions += `<a class="workout" type="button" href="/stopwatch?workoutID=${workoutID}">Go to Workout</a>`;
                 $(this).html(tdOptions);
             }
         }

@@ -29,7 +29,6 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-
 app.get("/", function (req, res) {
     res.sendFile(__dirname + "/login.html");
 })
@@ -89,10 +88,13 @@ app.post("/login", function (req, res) {
         })
 })
 
+app.get('/stopwatch', (req, res) => {
+    res.sendFile(__dirname + '/stopwatch.html');
+})
 
 
 app.get('/signup', (req, res) => {
-    res.sendFile(__dirname + "/signup.html")
+    res.render('signup');
 });
 
 app.post('/signup', (req, res) => {
@@ -138,8 +140,7 @@ app.post('/signup', (req, res) => {
                 });
             }
             else {
-                console.log("Username already taken");
-                res.sendFile(__dirname + '/signup.html');
+                res.render('signup', {text: 'Username was already taken'});
             }
         })
 

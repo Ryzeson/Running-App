@@ -1,5 +1,5 @@
 :root {
-  --main-bg-color: #EAE0CC;
+  --color1: #EAE0CC;
   --color2: #C9ADA1;
   --color3: #A0A083;
   --color4: #798478;
@@ -11,7 +11,7 @@
 }
 
 body {
-    background-color: var(--main-bg-color);
+    background-color: var(--color1);
 }
 
 span {
@@ -52,14 +52,13 @@ table {
     width: 14.2857%;
     height: 120px;
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid black;
     text-align: center;
     background-color: #f2f2f2;
-
   }
 
   td.stopwatch {
-    background-color: var(--main-bg-color);
+    background-color: var(--color2);
   }
 
   td.stopwatch:hover {
@@ -67,8 +66,8 @@ table {
   }
   
   td:hover {
-    background-color: #ddd;
-    transition: background-color 0.3s;
+    background-color: var(--color1);
+    transition: background-color 0.4s;
   }
 
   /* td.week-heading span {
@@ -136,4 +135,8 @@ input.submit {
 ol {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.hidden {
+  display:none;
 }
