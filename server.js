@@ -13,6 +13,8 @@ const saltRounds = 12; // Salt added to initial password before decryption. roun
 const { Pool } = require('pg'); // Package for connecting to Postgres db
 app.use(express.static('public')); // Allows express to serve static files, which should be stored in a folder called 'public'
 
+const port = process.env.PORT || 3000
+
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -91,7 +93,6 @@ app.post("/login", function (req, res) {
 app.get('/stopwatch', (req, res) => {
     res.sendFile(__dirname + '/stopwatch.html');
 })
-
 
 app.get('/signup', (req, res) => {
     res.render('signup');
@@ -185,6 +186,6 @@ app.get('/verify', (req, res) => {
         })
 })
 
-app.listen(process.env.PORT || 3000, function () {
-    console.log("Listening on: 3000");
+app.listen(port, function () {
+    console.log("Listening on: " + port);
 });
