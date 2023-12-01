@@ -1,6 +1,6 @@
 // This function retrieves the json file that holds the program's (e.g., 5k, half-marathon) workout information
 // The callback function is executed after the json is retrieved, and takes that json's data as a paramter
-    // In index.html, the callback created the table
+    // In index.html, the callback creates the table
     // In stopwatch.html, the callback initializes the timer values
 function parseJSON(callback) {
     // fetch("https://www.ryzeson.org/Running-App-dummy/program_files/test.json")
@@ -18,3 +18,11 @@ function parseJSON(callback) {
     // const json = await response.json();
     // console.log(json);
 }
+
+$(function () {
+$('[data-toggle="popover"]').popover();
+});
+
+$('.popover-dismiss').popover({
+trigger: 'focus'
+})
