@@ -121,7 +121,7 @@ app.post('/signup', (req, res) => {
 
 
                 // Send verification email
-                var href = 'http://localhost:3000/verify?username=' + req.body.username;
+                var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + req.body.username;
 
                 var message = 'Verification link: <a href="' + href + '"><button>Click Here</button></a>';
 
