@@ -1,9 +1,9 @@
 #!/bin/bash
 
-echo "Beginning start script"
+echo "Beginning after_install script"
 
 echo "At `pwd`. Attempting to change directory"
-cd ../
+cd /home/ec2-user/Running-App
 
 echo "At `pwd`. Running npm instal"
 npm install
