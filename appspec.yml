@@ -1,4 +1,5 @@
 # This file is needed by AWS CodeDeploy to know how to properly deploy the application
+# Template modified from https://docs.aws.amazon.com/codedeploy/latest/userguide/tutorials-github-upload-sample-revision.html
 version: 0.0
 os: linux
 files:
