@@ -3,4 +3,4 @@
 echo "Beginning before_install script"
 
 echo "Stopping application running via systemd"
-systemctl stop running-service
+systemctl stop running-app
