@@ -1,19 +1,16 @@
-# This file is needed by AWS CodeDeploy to know how to properly deploy the application
+# This file is needed by AWS CodeDeploy to know how to properly deploy the application from GitHub to an EC2 instance
 # Template modified from https://docs.aws.amazon.com/codedeploy/latest/userguide/tutorials-github-upload-sample-revision.html
 version: 0.0
 os: linux
 files:
   - source: /.
     destination: /home/ec2-user/Running-App
-# hooks:
-#   BeforeInstall:
-#     - location: scripts/install_dependencies
-#       timeout: 300
-#       runas: root
-#     - location: scripts/start_server
-#       timeout: 300
-#       runas: root
+hooks:
+  AfterInstall:
+    - location: codedeploy_scripts/start
+      timeout: 300
+      runas: root
 #   ApplicationStop:
-#     - location: scripts/stop_server
+#     - location: codedeploy_scripts/stop_server
 #       timeout: 300
 #       runas: root
