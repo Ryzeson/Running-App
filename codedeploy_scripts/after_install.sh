@@ -5,7 +5,7 @@ echo "Beginning after_install script"
 echo "At `pwd`. Attempting to change directory"
 cd /home/ec2-user/Running-App
 
-echo "At `pwd`. Running npm instal"
+echo "At `pwd`. Running npm install"
 npm install
 echo "Finished npm install"
 
