@@ -7,7 +7,7 @@ files:
     destination: /home/ec2-user/Running-App
 hooks:
   AfterInstall:
-    - location: codedeploy_scripts/start
+    - location: codedeploy_scripts/start.sh
       timeout: 300
       runas: root
 #   ApplicationStop:
