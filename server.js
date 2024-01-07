@@ -1,3 +1,6 @@
+#!/usr/bin/env node
+// Above line used by systemd service, which tells it to interpret this file as a node file
+
 const express = require("express");
 const app = express();
 
