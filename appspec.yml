@@ -15,6 +15,9 @@ hooks:
       timeout: 300
       runas: root
   ApplicationStart:
+    - location: scripts/setup_systemd_env.sh
+      timeout: 300
+      runas: root
     - location: codedeploy_scripts/application_start.sh
       timeout: 300
       runas: root
