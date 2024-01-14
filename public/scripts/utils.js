@@ -13,11 +13,20 @@ function parseJSON(callback) {
             callback(data);
         });
 
-    // Similar to above, but using async/await, which will exhibit blocking (synchronous) behavior within this function
-    // const response = await fetch("https://www.ryzeson.org/Running-App/program_json/test.json");
-    // const json = await response.json();
-    // console.log(json);
+    // This would print before the console.log(response) line in the then() block above, becauuse promises allow asynchronous behavior
+    // console.log("Hello")
 }
+
+// Similar to above, but using async/await, which will exhibit blocking (synchronous) behavior within this function
+// Hello prints after the json in this version
+// async function parseJSON(callback) {
+//     const response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
+//     const json = await response.json();
+//     callback(json)
+//     console.log(json);
+//     console.log("Hello");
+// }
+
 
 $(function () {
 $('[data-toggle="popover"]').popover();

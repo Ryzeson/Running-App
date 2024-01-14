@@ -13,30 +13,27 @@ function generateTable(data) {
             table += '<tr><td class="week-heading"><span>Week ' + weekNum + '</span></td>';
         }
         let id = `id=${workout.id}`;
-        let classValue = "";
+        let classValue = "class=";
         if (workout.intervals != undefined)
-            classValue = 'stopwatch';
-        let classDef = 'class=' + classValue;
-        table += `<td ${id} ${classDef}>${workout.desc}</td>`; // add the workout id to the <td> element
+            classValue += 'stopwatch';
+        table += `<td ${id} ${classValue}>${workout.desc}</td>`; // add the workout id to the <td> element
     });
     table += '</table>';
-
 
     return table;
 }
 
 function attachTDListener() {
-    // $(this) with arrow syntax (=?) was not working; was returning the entire window
+    // $(this) with arrow syntax (=>) was not working; it was returning a reference to the entire window
+    // By using function(e), $(this) actually points to the object calling this callback function, which is the td.stopwatch element 
 
-    $("td.stopwatch").on("click", function (e) {
+    $("td.stopwatch").on("click", function(e) {
         let target = e.target.tagName;
-        console.log(target);
-        // If the actual element that was clicked was the form or button, handle this normally
-        if (target == 'INPUT' || target == 'A' || target == 'FORM') {
-            console.log("Doing nothing");
-        }
-        // otherwise, add the completed checkbox and button to the cell if it is not there, or remove it if it is
-        else {
+        
+        // We want to add/remove the checkbox and button to the cell, but only if the <td> element was the one actually getting clicked
+        // i.e. not the input, a, or form tags
+        if (!(target == 'INPUT' || target == 'A' || target == 'FORM')) {
+            // $(this) is always the td element
             if ($(this).children().length > 0) {
                 while ($(this).children().length != 0)
                     $(this).children().eq(0).remove();
