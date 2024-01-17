@@ -4,18 +4,20 @@
 const express = require("express");
 const app = express();
 
-app.use(express.urlencoded({ extended: true })); // To parse incoming requests, included JSON and form data
+app.use(express.urlencoded({ extended: true })); // To parse incoming requests, including JSON and form data
 // app.use(express.json()) // To parse the incoming requests with JSON payloads
+app.use(express.static('public')); // Allows express to serve static files, which should be stored in a folder called 'public'
 
-const dotenv = require('dotenv').config(); // Package to help safely store db connection details in '.env' file
+const dotenv = require('dotenv').config(); // Package to help safely store db connection details and other environment vairables in a '.env' file
 const ejs = require('ejs'); // JavaScript templating package
 app.set('view engine', 'ejs'); // Look in the folder called 'views'
 const nodemailer = require('nodemailer'); // For sending emails
 const bcrypt = require('bcrypt'); // For hasing passwords
 const saltRounds = 12; // Salt added to initial password before decryption. rounds=12: 2-3 hashes/sec (https://blog.logrocket.com/password-hashing-node-js-bcrypt/#auto-generating-salt-hash)
 const { Pool } = require('pg'); // Package for connecting to Postgres db
-app.use(express.static('public')); // Allows express to serve static files, which should be stored in a folder called 'public'
-
+// The above is equivalent to the following two lines
+// const pg = require('pg');
+// const Pool = pg.Pool;
 const port = process.env.PORT || 3000
 
 const pool = new Pool({
@@ -210,13 +212,13 @@ app.post("/signup", async (req, res) => {
                     console.log("Successfully inserted the record");
                     return res.sendFile(__dirname + '/signup_success.html');
                 }
-                catch(err) {
+                catch (err) {
                     console.log(err);
                 }
             });
 
 
-            // Cobnstruct and send verification email
+            // Construct and send verification email
             var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + req.body.username;
 
             var message = 'Verification link: <a href="' + href + '"><button>Click Here</button></a>';
@@ -237,7 +239,7 @@ app.post("/signup", async (req, res) => {
             });
         }
     }
-    catch(err) {
+    catch (err) {
         console.error(err);
         res.render('signup', { text: errorMsg });
     }
