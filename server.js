@@ -16,8 +16,6 @@ const bcrypt = require('bcrypt'); // For hasing passwords
 const saltRounds = 12; // Salt added to initial password before decryption. rounds=12: 2-3 hashes/sec (https://blog.logrocket.com/password-hashing-node-js-bcrypt/#auto-generating-salt-hash)
 const { Pool } = require('pg'); // Package for connecting to Postgres db
 // The above is equivalent to the following two lines
-// const pg = require('pg');
-// const Pool = pg.Pool;
 const port = process.env.PORT || 3000
 
 const pool = new Pool({
@@ -60,9 +58,11 @@ app.post("/login", function (req, res) {
                     var db_verified = result.rows[0].verified;
                     var form_password = req.body.password;
 
-                    bcrypt.compare(form_password, hash, function (err, result) {
+                    bcrypt.compare(form_password, hash, async function (err, result) {
                         if (result && db_verified == 'Y') {
-                            res.render("index", { username: usernmae });
+                            // var table = "<table><tr><th></th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th></tr></table>";
+                            var table = await createProgressTable();
+                            res.render("index", { username: usernmae, table: table });
                         }
                         else {
                             var reasonMsg;
@@ -284,6 +284,69 @@ app.get('/verify', (req, res) => {
         })
 })
 
+app.post('/test', async (req, res) => {
+    console.log(req.body);
+    var client = await pool.connect();
+    var result = await client.query("SELECT * FROM progress where ID=$1", [1]);
+    var progressVal = result.rows[0].progress;
+    console.log(progressVal);
+    res.sendStatus(204); //https://restfulapi.net/http-status-204-no-content/
+})
+
+// Post route used by ajax request
+app.post('/updateProgress', async (req, res) => {
+    var id = req.body.id;
+    var client = await pool.connect();
+    var result = await client.query("SELECT * FROM progress where ID=$1", [1]); // 1 is just a test id. This will be replaced by cookie value
+    var progressVal = result.rows[0].progress;
+    var newBit = progressVal.charAt(id - 1) == "0" ? "1" : "0";
+    progressVal = progressVal.substring(0, id - 1) + newBit + progressVal.substring(id, progressVal.length);
+
+    await client.query("UPDATE progress SET progress=$2 where ID=$1", [1, progressVal]); // 1 is just a test id. This will be replaced by cookie value
+    res.send(progressVal);
+})
+
 app.listen(port, function () {
     console.log("Listening on: " + port);
 });
+
+async function createProgressTable() {
+    // Get the program data in json format
+    var response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
+    var data = await response.json();
+
+    // Query the database to get the string containing progress values
+    var client = await pool.connect();
+    var result = await client.query("SELECT progress FROM progress WHERE id=$1", [1]); // this is placeholder ID
+
+    // Assuming that this progress query will always return one row (should check for this later)
+    // This progressStr is a 64 character string of 0's and 1's
+    var progressStr = result.rows[0].progress;
+
+    // Creates the actual html table
+    const rowLength = 7;
+    var currentRow = -1;
+
+    let table = '<table>';
+    // table += '<tr><th colspan="8">Day of the Week</th></tr>';
+    table += '<tr><th></th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th></tr>'
+    data.workouts.forEach(workout => {
+        let rowNum = Math.floor((workout.id - 1) / rowLength);
+        if (rowNum > currentRow) {
+            currentRow++;
+            let weekNum = parseInt(currentRow) + 1;
+            table += '<tr><td class="week-heading"><span>Week ' + weekNum + '</span></td>';
+        }
+        let id = `id=${workout.id}`;
+        let classValue = "class='";
+        if (workout.intervals != undefined)
+            classValue += "stopwatch";
+        var completedClass = progressStr.charAt(workout.id - 1) == "1" ? " completed" : "";
+        classValue += completedClass;
+        classValue += "'";
+        table += `<td ${id} ${classValue}><p class='workout-desc'>${workout.desc}</p></td>`; // add the workout id to the <td> element
+    });
+    table += '</table>';
+
+    return table;
+}

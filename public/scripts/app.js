@@ -16,7 +16,7 @@ function generateTable(data) {
         let classValue = "class=";
         if (workout.intervals != undefined)
             classValue += 'stopwatch';
-        table += `<td ${id} ${classValue}>${workout.desc}</td>`; // add the workout id to the <td> element
+        table += `<td ${id} ${classValue}><p class='workout-desc'>${workout.desc}</p></td>`; // add the workout id to the <td> element
     });
     table += '</table>';
 
@@ -26,26 +26,37 @@ function generateTable(data) {
 function attachTDListener() {
     // $(this) with arrow syntax (=>) was not working; it was returning a reference to the entire window
     // By using function(e), $(this) actually points to the object calling this callback function, which is the td.stopwatch element 
-
-    $("td.stopwatch").on("click", function(e) {
+    const td = $("td");
+    td.on("click", function (e) {
         let target = e.target.tagName;
-        
+
         // We want to add/remove the checkbox and button to the cell, but only if the <td> element was the one actually getting clicked
         // i.e. not the input, a, or form tags
         if (!(target == 'INPUT' || target == 'A' || target == 'FORM')) {
-            // $(this) is always the td element
-            if ($(this).children().length > 0) {
-                while ($(this).children().length != 0)
-                    $(this).children().eq(0).remove();
+            // $(this) always refers to the object the listener is actually attached to
+            // So in this case, $(this) is equivalent to the current td handling this listener
+            // $(this) is not equivalent to td, because td is a list of all td elements
+            if ($(this).children().length > 1) {
+                removeTDOptions($(this));
             }
             else {
                 let workoutID = this.id;
                 let tdOptions = $(this).html();
-                tdOptions += '<form id="form" action="" method="get" onChange="this.form.submit()">';
-                tdOptions += 'Completed: <input type="checkbox" name="isCompleted"></input>';
+                tdOptions += "<div class='td-options'>";
+                tdOptions += "<div class='d-flex justify-between align-items-center'>"
+                tdOptions += "<button class='td-options-close mr-1'>X</button>";
+                tdOptions += `<form id="form" action="" method="get" onChange="updateProgress(${workoutID})">`;
+                tdOptions += 'Completed: <input type="checkbox" name="isCompleted"';
+                if ($(this).hasClass("completed"))
+                    tdOptions += ' checked';
+                tdOptions += '></input>';
                 tdOptions += '</form>';
+                tdOptions += "</div>"
                 // tdOptions += `<a class="workout" type="button" href="https://www.ryzeson.org/Running-App/stopwatch.html?workoutID=${workoutID}">Go to Workout</a>`;
-                tdOptions += `<a class="workout" type="button" href="/stopwatch?workoutID=${workoutID}">Go to Workout</a>`;
+                if ($(this).hasClass("stopwatch")) {
+                    tdOptions += `<a class="workout" type="button" href="/stopwatch?workoutID=${workoutID}">Go to Workout</a>`;
+                }
+                tdOptions += "</div>";
                 $(this).html(tdOptions);
             }
         }
@@ -55,12 +66,42 @@ function attachTDListener() {
     });
 }
 
-function createTable(data) {
-    console.log(data);
-    let table = generateTable(data);
-    $(".table").html(table);
-
-    attachTDListener();
+function updateProgress(id) {
+    updateDB(id);
+    updateCellUI(id);
 }
 
-parseJSON(createTable);
+function updateDB(id) {
+    $.ajax({
+        url: "http://localhost:3000/updateProgress",
+        type: "POST",
+        data: {
+            'id': id
+        },
+        success: function (data) {
+            console.log(data);
+        }
+    });
+}
+
+function updateCellUI(id) {
+    var td = $("td#" + id);
+    td.toggleClass("completed");
+    removeTDOptions(td);
+}
+
+function removeTDOptions(td) {
+    while (td.children().length != 1)
+        td.children().eq(td.children().length - 1).remove();
+}
+
+// function createTable(data) {
+//     console.log(data);
+//     let table = generateTable(data);
+//     $(".table").html(table);
+
+//     attachTDListener();
+// }
+
+// parseJSON(createTable);
+attachTDListener();

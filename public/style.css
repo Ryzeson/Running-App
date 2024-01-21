@@ -7,120 +7,122 @@
 }
 
 * {
-    font-family: 'Quicksand', sans-serif;
+  font-family: 'Quicksand', sans-serif;
 }
 
 body {
-    background-color: var(--color1);
+  background-color: var(--color1);
 }
 
 span {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .progress {
-    border: 2px solid rgb(0, 0, 0);
-    border-radius: 15px;
-    height: 15px;
-    width: 100%;
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 15px;
+  height: 15px;
+  width: 100%;
 }
 
 #progress-bar {
-    height: 15px;
-    width: 100%;
-    /* walk */
-    background-color: #5F93F3;
-    /* run */
-    /* background-color: #E0ACEC; */ 
+  height: 15px;
+  width: 100%;
+  /* walk */
+  background-color: #5F93F3;
+  /* run */
+  /* background-color: #E0ACEC; */
 }
 
 table {
-    border-collapse: collapse;
-    width: 100%;
-    border-spacing: 0;
-    border: 2px solid grey;
-    margin: auto;
-  }
-  
-  /* Header row */
-  th {
-    background-color: #333;
-    color: #fff;
-  }
+  border-collapse: collapse;
+  width: 100%;
+  border-spacing: 0;
+  border: 2px solid grey;
+  margin: auto;
+}
 
-  td {
-    width: 14.2857%;
-    height: 120px;
-    padding: 8px;
-    border: 1px solid black;
-    text-align: center;
-    background-color: #f2f2f2;
-  }
+/* Header row */
+th {
+  background-color: #333;
+  color: #fff;
+}
 
-  td.stopwatch {
-    background-color: var(--color2);
-  }
+td {
+  width: 14.2857%;
+  height: 120px;
+  border: 1px solid black;
+  text-align: center;
+  background-color: #f2f2f2;
+}
 
-  td.stopwatch:hover {
-    cursor: pointer;
-  }
-  
-  td:hover {
-    background-color: var(--color1);
-    transition: background-color 0.4s;
-  }
+/* Overrides a native padding in bootstrap's _tables.scss file */
+.table td {
+  padding: 0px;
+}
 
-  /* td.week-heading span {
+td.stopwatch {
+  background-color: var(--color2);
+}
+
+td:hover {
+  background-color: var(--color1);
+  transition: background-color 0.4s;
+  cursor: pointer;
+}
+
+/* td.week-heading span {
     -webkit-transform: rotate(270deg);
     display: block;
     margin-top: 99%;
   } */
 
-  td.week-heading {
-    width: 10px;
-    text-wrap: none;
-    color: #fff;
-    background-color: #333;
-  }
+td.week-heading {
+  width: 10px;
+  text-wrap: none;
+  color: #fff;
+  background-color: #333;
+}
 
-  /* for workout buttons */
-  a.workout {
-    display: inline-block;
-    font-weight: 400;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    user-select: none;
-    border: 1px solid transparent;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border-radius: 0.25rem;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  
-    /* Default button color */
-    color: #212529;
-    background-color: #f8f9fa;
-    border-color: #f8f9fa;
-  }
+/* for workout buttons */
+a.workout {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
-  a.workout:hover {
-    color: #212529;
-  }
+  /* Default button color */
+  color: #212529;
+  background-color: #f8f9fa;
+  border-color: #f8f9fa;
+}
 
-  a.button {
-    font-weight: 500;
-    color: var(--color5);
-    text-align: center;
-    user-select: none;
-  }
+a.workout:hover {
+  color: #212529;
+}
+
+a.button {
+  font-weight: 500;
+  color: var(--color5);
+  text-align: center;
+  user-select: none;
+}
 
 /* .app-container {
     border: 2px solid black;
 } */
 
 .center-container {
-  margin-top: 20vh; /* Move this content down, starting at 20% of the screen height */
+  margin-top: 20vh;
+  /* Move this content down, starting at 20% of the screen height */
 }
 
 input.submit {
@@ -138,5 +140,35 @@ ol {
 }
 
 .hidden {
-  display:none;
+  display: none;
+}
+
+/* Inside a td cell */
+td.completed {
+  background-color: lightgrey;
+}
+
+td.completed:hover {
+  background-color: var(--color1);
+  transition: background-color 0.4s;
+}
+
+p.workout-desc {
+  margin: 10px;
+}
+
+.td-options {
+  background-color: var(--color2);
+  width: 100%;
+  padding: 8px;
+}
+
+.td-options-close {
+  background-color: salmon;
+  color: white;
+  padding: 3px;
+}
+
+.td-options-close:hover {
+  background-color: red;
 }
