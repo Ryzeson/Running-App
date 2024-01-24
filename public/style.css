@@ -149,7 +149,7 @@ td.completed {
 }
 
 td.completed:hover {
-  background-color: var(--color1);
+  background-color: rgb(173, 164, 164);
   transition: background-color 0.4s;
 }
 

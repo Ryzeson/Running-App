@@ -4,10 +4,6 @@
 const express = require("express");
 const app = express();
 
-app.use(express.urlencoded({ extended: true })); // To parse incoming requests, including JSON and form data
-// app.use(express.json()) // To parse the incoming requests with JSON payloads
-app.use(express.static('public')); // Allows express to serve static files, which should be stored in a folder called 'public'
-
 const dotenv = require('dotenv').config(); // Package to help safely store db connection details and other environment vairables in a '.env' file
 const ejs = require('ejs'); // JavaScript templating package
 app.set('view engine', 'ejs'); // Look in the folder called 'views'
@@ -16,7 +12,29 @@ const bcrypt = require('bcrypt'); // For hasing passwords
 const saltRounds = 12; // Salt added to initial password before decryption. rounds=12: 2-3 hashes/sec (https://blog.logrocket.com/password-hashing-node-js-bcrypt/#auto-generating-salt-hash)
 const { Pool } = require('pg'); // Package for connecting to Postgres db
 // The above is equivalent to the following two lines
+// const pg = require('pg');
+// const Pool = pg.Pool;
+// The below two lines are used for storing and retriving session state (e.g., userid)
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+
 const port = process.env.PORT || 3000
+
+// Set middleware
+app.use(express.urlencoded({ extended: true })); // To parse incoming requests, including JSON and form data
+// app.use(express.json()) // To parse the incoming requests with JSON payloads
+app.use(express.static('public')); // Allows express to serve static files, which should be stored in a folder called 'public'
+
+// app.use(cookieParser());
+
+app.use(session({
+    secret: "secrettext",
+    saveUninitialized: true,
+    resave: true
+    // cookie: { secure: false }// this should be set to true, but needs to be false because right now the server only operates under https
+}));
+
+
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -38,61 +56,58 @@ app.get("/", function (req, res) {
     res.sendFile(__dirname + "/login.html");
 })
 
-app.post("/login", function (req, res) {
-    var usernmae = req.body.username;
+app.post("/login", async function (req, res) {
+    var username = req.body.username;
 
-    pool.connect()
-        .then(client => {
-            var query = 'SELECT * FROM users WHERE username = $1';
-            var params = [usernmae];
+    try {
+        var client = await pool.connect();
+        var query = 'SELECT * FROM users WHERE username = $1';
+        var params = [username];
 
-            client.query(query, params)
-                .then(result => {
-                    // This 'result' variable contains lots of information in json format. 'rows' is just one part that we can access
-                    client.release();
-                    if (result.rows.length == 0) {
-                        res.render("login_failure", { reasonMsg: "User does not exist. Please try again with a different username." });
-                        return;
-                    }
-                    var hash = result.rows[0].password;
-                    var db_verified = result.rows[0].verified;
-                    var form_password = req.body.password;
+        var result = await client.query(query, params);
+        // This 'result' variable contains lots of information in json format. 'rows' is just one part that we can access
+        if (result.rows.length == 0) {
+            res.render("login_failure", { reasonMsg: "User does not exist. Please try again with a different username." });
+            return;
+        }
+        var hash = result.rows[0].password;
+        var db_verified = result.rows[0].verified;
+        var form_password = req.body.password;
 
-                    bcrypt.compare(form_password, hash, async function (err, result) {
-                        if (result && db_verified == 'Y') {
-                            // var table = "<table><tr><th></th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th></tr></table>";
-                            var table = await createProgressTable();
-                            res.render("index", { username: usernmae, table: table });
-                        }
-                        else {
-                            var reasonMsg;
-                            if (db_verified == 'N')
-                                reasonMsg = 'Your email is not verified yet. Please check your inbox for an email containing your verification link';
-                            else
-                                reasonMsg = 'Your password is incorrect. Please try again';
+        bcrypt.compare(form_password, hash, async function (err, result) {
+            if (result && db_verified == 'Y') {
+                // Create a session that stores this logged in user's info
+                var idResult = await client.query("SELECT id FROM users WHERE username=$1", [username]);
+                var userid = parseInt(idResult.rows[0].id);
+                req.session.userid = userid;
+                req.session.save();
+                console.log("Logged in userid session:", req.session.userid);
 
-                            res.render("login_failure", { reasonMsg: reasonMsg });
-                        }
-                    });
+                // Query the database to get the string containing progress values
+                var result = await client.query("SELECT progress FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
 
+                // Assuming that this progress query will always return one row (should check for this later)
+                // This progressStr is a 64 character string of 0's and 1's
+                var progressStr = result.rows[0].progress;
 
-                })
-                .catch(queryError => {
-                    // It is possible that the client was already released in the previous then block, so try/catch this release()
-                    try {
-                        client.release();
-                    }
-                    catch (error) {
-                        console.error(error);
-                    }
-                    console.error('Error executing query', queryError); // just concatenates the error message
-                    res.status(500).send('Error');
-                });
-        })
-        .catch(connectError => {
-            console.error('Error connecting to database', connectError);
-            res.status(500).send('Error');
-        })
+                var table = await createProgressTable(progressStr);
+                res.render("index", { username: username, table: table });
+            }
+            else {
+                var reasonMsg;
+                if (db_verified == 'N')
+                    reasonMsg = 'Your email is not verified yet. Please check your inbox for an email containing your verification link';
+                else
+                    reasonMsg = 'Your password is incorrect. Please try again';
+
+                res.render("login_failure", { reasonMsg: reasonMsg });
+            }
+        });
+    }
+    catch (err) {
+        console.error('Error connecting to database or executing query', err);
+        res.status(500).send('Error');
+    }
 })
 
 app.get('/stopwatch', (req, res) => {
@@ -208,8 +223,15 @@ app.post("/signup", async (req, res) => {
                 var insertQuery = "INSERT INTO users VALUES($1, $2, $3)";
                 var insertParams = [req.body.username, hash, req.body.email];
                 try {
-                    var result = await client.query(insertQuery, insertParams);
-                    console.log("Successfully inserted the record");
+                    await client.query(insertQuery, insertParams);
+                    console.log("Successfully inserted the users table record");
+
+                    // Create a corresponding entry in the progress table for this user
+                    var progressInsertQuery = "INSERT INTO progress SELECT id, '0000000000000000000000000000000000000000000000000000000000000000' FROM users WHERE username = $1";
+                    var progressInsertParams = [req.body.username];
+
+                    await client.query(progressInsertQuery, progressInsertParams);
+                    console.log("Successfully inserted the progress table record");
                     return res.sendFile(__dirname + '/signup_success.html');
                 }
                 catch (err) {
@@ -217,26 +239,7 @@ app.post("/signup", async (req, res) => {
                 }
             });
 
-
-            // Construct and send verification email
-            var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + req.body.username;
-
-            var message = 'Verification link: <a href="' + href + '"><button>Click Here</button></a>';
-
-            var mailOptions = {
-                from: process.env.EMAIL,
-                to: req.body.email,
-                subject: 'Running App Verification Email',
-                html: message
-            };
-
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent: ' + info.response);
-                }
-            });
+            sendVerificationEmail(req.body.username, req.body.email);
         }
     }
     catch (err) {
@@ -247,7 +250,6 @@ app.post("/signup", async (req, res) => {
 
 
 app.get('/verify', (req, res) => {
-    console.log(req.query);
     pool.connect()
         .then(client => {
             var query = 'SELECT * FROM users WHERE username = $1';
@@ -285,7 +287,6 @@ app.get('/verify', (req, res) => {
 })
 
 app.post('/test', async (req, res) => {
-    console.log(req.body);
     var client = await pool.connect();
     var result = await client.query("SELECT * FROM progress where ID=$1", [1]);
     var progressVal = result.rows[0].progress;
@@ -295,14 +296,16 @@ app.post('/test', async (req, res) => {
 
 // Post route used by ajax request
 app.post('/updateProgress', async (req, res) => {
+    var userid = req.session.userid;
+    console.log("Updating progress vale as ", userid);
     var id = req.body.id;
     var client = await pool.connect();
-    var result = await client.query("SELECT * FROM progress where ID=$1", [1]); // 1 is just a test id. This will be replaced by cookie value
+    var result = await client.query("SELECT * FROM progress WHERE id=$1", [userid]);
     var progressVal = result.rows[0].progress;
     var newBit = progressVal.charAt(id - 1) == "0" ? "1" : "0";
     progressVal = progressVal.substring(0, id - 1) + newBit + progressVal.substring(id, progressVal.length);
 
-    await client.query("UPDATE progress SET progress=$2 where ID=$1", [1, progressVal]); // 1 is just a test id. This will be replaced by cookie value
+    await client.query("UPDATE progress SET progress=$2 WHERE id=$1", [userid, progressVal]);
     res.send(progressVal);
 })
 
@@ -310,18 +313,10 @@ app.listen(port, function () {
     console.log("Listening on: " + port);
 });
 
-async function createProgressTable() {
+async function createProgressTable(progressStr) {
     // Get the program data in json format
     var response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
     var data = await response.json();
-
-    // Query the database to get the string containing progress values
-    var client = await pool.connect();
-    var result = await client.query("SELECT progress FROM progress WHERE id=$1", [1]); // this is placeholder ID
-
-    // Assuming that this progress query will always return one row (should check for this later)
-    // This progressStr is a 64 character string of 0's and 1's
-    var progressStr = result.rows[0].progress;
 
     // Creates the actual html table
     const rowLength = 7;
@@ -349,4 +344,27 @@ async function createProgressTable() {
     table += '</table>';
 
     return table;
+}
+
+function sendVerificationEmail(username, email) {
+    console.log("Send mail");
+    // Construct and send verification email
+    var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + username;
+
+    var message = 'Verification link: <a href="' + href + '"><button>Click Here</button></a>';
+
+    var mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: 'Running App Verification Email',
+        html: message
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
 }
