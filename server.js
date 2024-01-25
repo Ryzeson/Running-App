@@ -52,8 +52,17 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-app.get("/", function (req, res) {
-    res.sendFile(__dirname + "/login.html");
+app.get("/", async function (req, res) {
+    var userid = req.session.userid;
+    if (req.session.userid) {
+        var username = await getUsername(userid);
+        var progressStr = await getProgress(userid);
+
+        var table = await createProgressTable(progressStr);
+        res.render("index", { username: username, table: table });
+    }
+    else
+        res.sendFile(__dirname + "/login.html");
 })
 
 app.post("/login", async function (req, res) {
@@ -83,14 +92,9 @@ app.post("/login", async function (req, res) {
                 req.session.save();
                 console.log("Logged in userid session:", req.session.userid);
 
-                // Query the database to get the string containing progress values
-                var result = await client.query("SELECT progress FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
-
-                // Assuming that this progress query will always return one row (should check for this later)
-                // This progressStr is a 64 character string of 0's and 1's
-                var progressStr = result.rows[0].progress;
-
+                var progressStr = await getProgress(userid);
                 var table = await createProgressTable(progressStr);
+
                 res.render("index", { username: username, table: table });
             }
             else {
@@ -286,6 +290,12 @@ app.get('/verify', (req, res) => {
         })
 })
 
+app.get('/signout', (req, res) => {
+    req.session.destroy(function(err) {
+        res.sendFile(__dirname + "/login.html");
+      })
+})
+
 app.post('/test', async (req, res) => {
     var client = await pool.connect();
     var result = await client.query("SELECT * FROM progress where ID=$1", [1]);
@@ -367,4 +377,22 @@ function sendVerificationEmail(username, email) {
             console.log('Email sent: ' + info.response);
         }
     });
+}
+
+async function getUsername(userid) {
+    var client = await pool.connect();
+
+    var result = await client.query("SELECT username FROM users WHERE id=$1", [userid]);
+    return result.rows[0].username;
+}
+
+async function getProgress(userid) {
+    var client = await pool.connect();
+
+    // Query the database to get the string containing progress values
+    var result = await client.query("SELECT progress FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
+
+    // Assuming that this progress query will always return one row (should check for this later)
+    // This progressStr is a 64 character string of 0's and 1's
+    return result.rows[0].progress;
 }
