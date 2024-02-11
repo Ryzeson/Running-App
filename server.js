@@ -16,7 +16,8 @@ const { Pool } = require('pg'); // Package for connecting to Postgres db
 // const Pool = pg.Pool;
 // The below two lines are used for storing and retriving session state (e.g., userid)
 const session = require("express-session");
-const cookieParser = require("cookie-parser");
+
+const util = require('./util_functions');
 
 const port = process.env.PORT || 3000
 
@@ -25,15 +26,12 @@ app.use(express.urlencoded({ extended: true })); // To parse incoming requests, 
 // app.use(express.json()) // To parse the incoming requests with JSON payloads
 app.use(express.static('public')); // Allows express to serve static files, which should be stored in a folder called 'public'
 
-// app.use(cookieParser());
-
 app.use(session({
     secret: "secrettext",
     saveUninitialized: true,
     resave: true
     // cookie: { secure: false }// this should be set to true, but needs to be false because right now the server only operates under https
 }));
-
 
 
 const pool = new Pool({
@@ -53,12 +51,13 @@ var transporter = nodemailer.createTransport({
 });
 
 app.get("/", async function (req, res) {
+    // If the user's session exists, skip the login page and take them directly to the main page that contains the progress table
     var userid = req.session.userid;
     if (req.session.userid) {
         var username = await getUsername(userid);
         var progressStr = await getProgress(userid);
 
-        var table = await createProgressTable(progressStr);
+        var table = await util.createProgressTable(progressStr);
         res.render("index", { username: username, table: table });
     }
     else
@@ -93,7 +92,7 @@ app.post("/login", async function (req, res) {
                 console.log("Logged in userid session:", req.session.userid);
 
                 var progressStr = await getProgress(userid);
-                var table = await createProgressTable(progressStr);
+                var table = await util.createProgressTable(progressStr);
 
                 res.render("index", { username: username, table: table });
             }
@@ -110,7 +109,7 @@ app.post("/login", async function (req, res) {
     }
     catch (err) {
         console.error('Error connecting to database or executing query', err);
-        res.status(500).send('Error');
+        res.sendFile(__dirname + "/error.html");
     }
 })
 
@@ -166,7 +165,7 @@ app.get('/signup', (req, res) => {
 //             });
 
 
-//             // Cobnstruct and send verification email
+//             // Construct and send verification email
 //             var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + req.body.username;
 
 //             var message = 'Verification link: <a href="' + href + '"><button>Click Here</button></a>';
@@ -248,7 +247,14 @@ app.post("/signup", async (req, res) => {
     }
     catch (err) {
         console.error(err);
-        res.render('signup', { text: errorMsg });
+        // If the errorMsg has content, then this means the error that occurred is due to logic (e.g., username is already taken, password is incorrect)
+        // otherwise it is a different error, such as db connectivity or another unexpected error
+        if (errorMsg) {
+            res.render('signup', { text: errorMsg });
+        }
+        else {
+            res.sendFile(__dirname + "/error.html");
+        }
     }
 })
 
@@ -323,38 +329,8 @@ app.listen(port, function () {
     console.log("Listening on: " + port);
 });
 
-async function createProgressTable(progressStr) {
-    // Get the program data in json format
-    var response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
-    var data = await response.json();
 
-    // Creates the actual html table
-    const rowLength = 7;
-    var currentRow = -1;
-
-    let table = '<table>';
-    // table += '<tr><th colspan="8">Day of the Week</th></tr>';
-    table += '<tr><th></th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th></tr>'
-    data.workouts.forEach(workout => {
-        let rowNum = Math.floor((workout.id - 1) / rowLength);
-        if (rowNum > currentRow) {
-            currentRow++;
-            let weekNum = parseInt(currentRow) + 1;
-            table += '<tr><td class="week-heading"><span>Week ' + weekNum + '</span></td>';
-        }
-        let id = `id=${workout.id}`;
-        let classValue = "class='";
-        if (workout.intervals != undefined)
-            classValue += "stopwatch";
-        var completedClass = progressStr.charAt(workout.id - 1) == "1" ? " completed" : "";
-        classValue += completedClass;
-        classValue += "'";
-        table += `<td ${id} ${classValue}><p class='workout-desc'>${workout.desc}</p></td>`; // add the workout id to the <td> element
-    });
-    table += '</table>';
-
-    return table;
-}
+// Helper functions
 
 function sendVerificationEmail(username, email) {
     console.log("Send mail");
