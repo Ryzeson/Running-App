@@ -1,5 +1,6 @@
 module.exports = {
-    createProgressTable: createProgressTable
+    createProgressTable: createProgressTable,
+    sendVerificationEmail : sendVerificationEmail
   };
   
   var zemba = function () {
@@ -36,4 +37,35 @@ async function createProgressTable(progressStr) {
     table += '</table>';
 
     return table;
+}
+
+function sendVerificationEmail(username, email, nodemailer) {
+    console.log("Send mail");
+    // Construct and send verification email
+    var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + username;
+
+    var message = 'Verification link: <a href="' + href + '"><button>Click Here</button></a>';
+
+    var mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: 'Running App Verification Email',
+        html: message
+    };
+
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
 }

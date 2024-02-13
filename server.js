@@ -4,7 +4,7 @@
 const express = require("express");
 const app = express();
 
-const dotenv = require('dotenv').config(); // Package to help safely store db connection details and other environment vairables in a '.env' file
+require('dotenv').config(); // Package to help safely store db connection details and other environment vairables by loading info from a '.env' file into process.env
 const ejs = require('ejs'); // JavaScript templating package
 app.set('view engine', 'ejs'); // Look in the folder called 'views'
 const nodemailer = require('nodemailer'); // For sending emails
@@ -14,8 +14,7 @@ const { Pool } = require('pg'); // Package for connecting to Postgres db
 // The above is equivalent to the following two lines
 // const pg = require('pg');
 // const Pool = pg.Pool;
-// The below two lines are used for storing and retriving session state (e.g., userid)
-const session = require("express-session");
+const session = require("express-session"); // Used for storing and retriving session state (e.g., userid)
 
 const util = require('./util_functions');
 
@@ -42,14 +41,6 @@ const pool = new Pool({
     port: process.env.DB_PORT
 });
 
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASS
-    }
-});
-
 app.get("/", async function (req, res) {
     // If the user's session exists, skip the login page and take them directly to the main page that contains the progress table
     var userid = req.session.userid;
@@ -61,7 +52,7 @@ app.get("/", async function (req, res) {
         res.render("index", { username: username, table: table });
     }
     else
-        res.sendFile(__dirname + "/login.html");
+        res.render("login");
 })
 
 app.post("/login", async function (req, res) {
@@ -75,7 +66,7 @@ app.post("/login", async function (req, res) {
         var result = await client.query(query, params);
         // This 'result' variable contains lots of information in json format. 'rows' is just one part that we can access
         if (result.rows.length == 0) {
-            res.render("login_failure", { reasonMsg: "User does not exist. Please try again with a different username." });
+            res.render("login", { reasonMsg: "User does not exist. Please try again with a different username." });
             return;
         }
         var hash = result.rows[0].password;
@@ -103,7 +94,7 @@ app.post("/login", async function (req, res) {
                 else
                     reasonMsg = 'Your password is incorrect. Please try again';
 
-                res.render("login_failure", { reasonMsg: reasonMsg });
+                res.render("login", { reasonMsg: reasonMsg });
             }
         });
     }
@@ -242,7 +233,7 @@ app.post("/signup", async (req, res) => {
                 }
             });
 
-            sendVerificationEmail(req.body.username, req.body.email);
+            util.sendVerificationEmail(req.body.username, req.body.email, nodemailer);
         }
     }
     catch (err) {
@@ -260,46 +251,49 @@ app.post("/signup", async (req, res) => {
 
 
 app.get('/verify', (req, res) => {
+    var db_client;
     pool.connect()
         .then(client => {
+            db_client = client;
             var query = 'SELECT * FROM users WHERE username = $1';
             var params = [req.query.username];
-            client.query(query, params)
-                .then(result => {
+            return db_client.query(query, params)
+        }).then(result => {
+            if (result.rowCount != 1) {
+                return Promise.reject('NoSingleUser');
+            }
+            else {
+                var updateQuery = 'UPDATE users SET verified = \'Y\' WHERE username = $1';
+                var updateParams = [req.query.username];
+                return db_client.query(updateQuery, updateParams)
+            }
+        }).then(result => {
+            res.sendFile(__dirname + '/verified_email.html');
+        }).catch(err => {
+            console.error('Error ', err);
 
-                    if (result.rowCount == 1) {
-                        var updateQuery = 'UPDATE users SET verified = \'Y\' WHERE username = $1';
-                        var updateParams = [req.query.username];
-                        client.query(updateQuery, updateParams)
-                            .then(result => {
-                                res.send('Successfully validated your email. You can now close this tab.');
-                            })
-                            .catch(error => {
-                                console.error("Error executing update query", error);
-                                res.status(500).send('Error');
-                            })
-                    }
-                    else {
-                        // Throw some error
-                        console.error("Username does not exist, or exists multiple times. At this point, only one should exist.");
-                        res.status(500).send('Error');
-                    }
-                })
-                .catch(queryError => {
-                    console.error('Error executing query', queryError);
-                    res.status(500).send('Error');
-                })
+            // Example of how to handle multiple types of erros within one single catch block
+            // The first if statement is a custom error, created to account for custom application logic, and thrown when Promise.reject() is called
+            // If an error occurs while calling db_client, an error object comes back, and the err.code attribute tells us what went wrong. I cover one of these cases
+            // Postgres error code reference: https://www.postgresql.org/docs/current/errcodes-appendix.html
+            if (err == "NoSingleUser") {
+                console.error("Username does not exist, or exists multiple times. At this point, only one should exist.");
+            }
+            else if (err.code == 42601) {
+                console.error("There is a syntax error in one of the executed queries.");
+            }
+            else {
+                console.error("An unexpected error occurred. Either unable to connect to db or a query was unable to be successfully executed.");
+            }
+            res.sendFile(__dirname + '/error.html');
         })
-        .catch(connectError => {
-            console.error('Error connecting to database', connectError);
-            res.status(500).send('Error');
-        })
+        console.log("here");
 })
 
 app.get('/signout', (req, res) => {
-    req.session.destroy(function(err) {
-        res.sendFile(__dirname + "/login.html");
-      })
+    req.session.destroy(function (err) {
+        res.render("login");
+    })
 })
 
 app.post('/test', async (req, res) => {
@@ -331,30 +325,6 @@ app.listen(port, function () {
 
 
 // Helper functions
-
-function sendVerificationEmail(username, email) {
-    console.log("Send mail");
-    // Construct and send verification email
-    var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + username;
-
-    var message = 'Verification link: <a href="' + href + '"><button>Click Here</button></a>';
-
-    var mailOptions = {
-        from: process.env.EMAIL,
-        to: email,
-        subject: 'Running App Verification Email',
-        html: message
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
-}
-
 async function getUsername(userid) {
     var client = await pool.connect();
 
