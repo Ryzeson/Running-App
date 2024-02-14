@@ -2,9 +2,6 @@ module.exports = {
     createProgressTable: createProgressTable,
     sendVerificationEmail : sendVerificationEmail
   };
-  
-  var zemba = function () {
-  }
 
 async function createProgressTable(progressStr) {
     // Get the program data in json format

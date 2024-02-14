@@ -5,8 +5,7 @@ const express = require("express");
 const app = express();
 
 require('dotenv').config(); // Package to help safely store db connection details and other environment vairables by loading info from a '.env' file into process.env
-const ejs = require('ejs'); // JavaScript templating package
-app.set('view engine', 'ejs'); // Look in the folder called 'views'
+app.set('view engine', 'ejs'); // ejs is a JavaScript templating package. This sets the templating engine to use ejs, which will render .ejs files in the 'views' folder
 const nodemailer = require('nodemailer'); // For sending emails
 const bcrypt = require('bcrypt'); // For hasing passwords
 const saltRounds = 12; // Salt added to initial password before decryption. rounds=12: 2-3 hashes/sec (https://blog.logrocket.com/password-hashing-node-js-bcrypt/#auto-generating-salt-hash)
@@ -16,7 +15,7 @@ const { Pool } = require('pg'); // Package for connecting to Postgres db
 // const Pool = pg.Pool;
 const session = require("express-session"); // Used for storing and retriving session state (e.g., userid)
 
-const util = require('./util_functions');
+const util = require('./public/scripts/server_utils');
 
 const port = process.env.PORT || 3000
 

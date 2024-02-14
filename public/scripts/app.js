@@ -73,7 +73,7 @@ function updateProgress(id) {
 
 function updateDB(id) {
     $.ajax({
-        url: "http://localhost:3000/updateProgress",
+        url: '/updateProgress', //can use relative path because this will be on the same domain
         type: "POST",
         data: {
             'id': id
@@ -105,3 +105,4 @@ function removeTDOptions(td) {
 
 // parseJSON(createTable);
 attachTDListener();
+console.log("asdf");
