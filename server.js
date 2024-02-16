@@ -15,7 +15,7 @@ const { Pool } = require('pg'); // Package for connecting to Postgres db
 // const Pool = pg.Pool;
 const session = require("express-session"); // Used for storing and retriving session state (e.g., userid)
 
-const util = require('./public/scripts/server_utils');
+const util = require('./server_utils');
 
 const port = process.env.PORT || 3000
 
@@ -308,13 +308,21 @@ app.post('/updateProgress', async (req, res) => {
     var userid = req.session.userid;
     console.log("Updating progress vale as ", userid);
     var id = req.body.id;
-    var client = await pool.connect();
-    var result = await client.query("SELECT * FROM progress WHERE id=$1", [userid]);
-    var progressVal = result.rows[0].progress;
-    var newBit = progressVal.charAt(id - 1) == "0" ? "1" : "0";
-    progressVal = progressVal.substring(0, id - 1) + newBit + progressVal.substring(id, progressVal.length);
+    try {
+        var client = await pool.connect();
+        var result = await client.query("SELECT * FROM progress WHERE id=$1", [userid]);
+        var progressVal = result.rows[0].progress;
+        var newBit = progressVal.charAt(id - 1) == "0" ? "1" : "0";
+        progressVal = progressVal.substring(0, id - 1) + newBit + progressVal.substring(id, progressVal.length);
+    
+        await client.query("UPDATE progress SET progress=$2 WHERE id=$1", [userid, progressVal]);
+    
+        client.release();
+    }
+    catch(err) {
+        print(err);
+    }
 
-    await client.query("UPDATE progress SET progress=$2 WHERE id=$1", [userid, progressVal]);
     res.send(progressVal);
 })
 
