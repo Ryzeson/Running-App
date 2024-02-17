@@ -56,6 +56,11 @@ app.get("/", async function (req, res) {
         res.render("login");
 })
 
+// User might try to refresh the login page after an unsuccessful login attempt, in which case we need a GET route to handle this.
+app.get('/login', (req, res) => {
+    res.render("login");
+})
+
 app.post("/login", async function (req, res) {
     var username = req.body.username;
 
@@ -64,44 +69,50 @@ app.post("/login", async function (req, res) {
         var query = 'SELECT * FROM users WHERE username = $1';
         var params = [username];
 
-        var result = await client.query(query, params);
-        // This 'result' variable contains lots of information in json format. 'rows' is just one part that we can access
-        if (result.rows.length == 0) {
-            res.render("login", { reasonMsg: "User does not exist. Please try again with a different username." });
-            return;
+        var queryResult = await client.query(query, params);
+        // This 'queryResult' variable contains lots of information in json format. 'rows' is just one part that we can access
+        if (queryResult.rows.length == 0) {
+            throw 'IncorrectUsernameOrPassword'; // Incorrect username
         }
-        var hash = result.rows[0].password;
-        var db_verified = result.rows[0].verified;
+        var hash = queryResult.rows[0].password;
+        var db_verified = queryResult.rows[0].verified;
+        if (db_verified == 'N')
+            throw 'UnverifiedEmail';
         var form_password = req.body.password;
 
-        bcrypt.compare(form_password, hash, async function (err, result) {
-            if (result && db_verified == 'Y') {
-                // Create a session that stores this logged in user's info
-                var idResult = await client.query("SELECT id FROM users WHERE username=$1", [username]);
-                var userid = parseInt(idResult.rows[0].id);
-                req.session.userid = userid;
-                req.session.save();
-                console.log("Logged in userid session:", req.session.userid);
-
-                var progressStr = await getProgress(userid);
-                var table = await util.createProgressTable(progressStr);
-
-                res.render("index", { username: username, table: table });
-            }
-            else {
-                var reasonMsg;
-                if (db_verified == 'N')
-                    reasonMsg = 'Your email is not verified yet. Please check your inbox for an email containing your verification link';
-                else
-                    reasonMsg = 'Your password is incorrect. Please try again';
-
-                res.render("login", { reasonMsg: reasonMsg });
-            }
+        // Returns true if the password entered in this login form matches the one we have hashed in the db
+        var result = await new Promise((resolve, reject) => {
+            bcrypt.compare(form_password, hash, async function (err, result) {
+                if (err) reject(err);
+                else resolve(result);
+            });
         });
+
+        if (!result) {
+            throw 'IncorrectUsernameOrPassword'; // Incorrect password
+        }
+        else {
+            // Create a session that stores this logged in user's info
+            var idResult = await client.query("SELECT id FROM users WHERE username=$1", [username]);
+            var userid = parseInt(idResult.rows[0].id);
+            req.session.userid = userid;
+            req.session.save();
+
+            var progressStr = await getProgress(userid);
+            var table = await util.createProgressTable(progressStr);
+
+            res.render("index", { username: username, table: table });
+        }
     }
     catch (err) {
-        console.error('Error connecting to database or executing query', err);
-        res.sendFile(__dirname + "/error.html");
+        if (err == 'UnverifiedEmail')
+            res.render("login", { reasonMsg: 'Your email is not verified yet. Please check your inbox for an email containing your verification link.' });
+        else if (err == 'IncorrectUsernameOrPassword') // This is combined into a single error, because we don't want to give any indication if a user does / does not exist, due to security concerns
+            res.render("login", { reasonMsg: 'Your username or password is incorrect. Please try again.' });
+        else {
+            console.error('Error connecting to database or executing query', err);
+            res.render('error');
+        }
     }
 })
 
@@ -195,58 +206,49 @@ app.post("/signup", async (req, res) => {
         // First check if this username (primary key) exists in the database. If it does, ask the user to pick a different username
         var emailResult;
         if (result.rows.length > 0) {
-            errorMsg = "Username is already taken. Please use a different username.";
-            throw errorMsg;
+            throw 'ExistingUsername';
         }
-        else {
-            // No matches found, username is not taken
-            // Table also requires email to be unique, so check that the email is not taken either
-            var emailQuery = "SELECT * FROM users WHERE email = $1";
-            var emailParam = [req.body.email];
-            emailResult = await client.query(emailQuery, emailParam);
-        }
+        // No matches found, username is not taken
+        // Table also requires email to be unique, so check that the email is not taken either
+        var emailQuery = "SELECT * FROM users WHERE email = $1";
+        var emailParam = [req.body.email];
+        emailResult = await client.query(emailQuery, emailParam);
 
         if (emailResult.rows.length > 0) {
-            errorMsg = "Email is already taken. Please use a different email.";
-            throw errorMsg;
+            throw 'ExistingEmail';
         }
-        else {
-            // Email is not taken. Insert this record into the table
-            // Hash password
+        // Email is not taken. Insert this record into the table
+        // Hash password
+        var hashedPassword = await new Promise((resolve, reject) => {
             bcrypt.hash(req.body.password, saltRounds, async function (err, hash) {
-                //Insert into db
-                var insertQuery = "INSERT INTO users VALUES($1, $2, $3)";
-                var insertParams = [req.body.username, hash, req.body.email];
-                try {
-                    await client.query(insertQuery, insertParams);
-                    console.log("Successfully inserted the users table record");
-
-                    // Create a corresponding entry in the progress table for this user
-                    var progressInsertQuery = "INSERT INTO progress SELECT id, '0000000000000000000000000000000000000000000000000000000000000000' FROM users WHERE username = $1";
-                    var progressInsertParams = [req.body.username];
-
-                    await client.query(progressInsertQuery, progressInsertParams);
-                    console.log("Successfully inserted the progress table record");
-                    return res.sendFile(__dirname + '/signup_success.html');
-                }
-                catch (err) {
-                    console.log(err);
-                }
+                if (err) reject(err);
+                else resolve(hash);
             });
+        });
 
-            util.sendVerificationEmail(req.body.username, req.body.email, nodemailer);
-        }
+        //Insert into db
+        var insertQuery = "INSERT INTO users VALUES($1, $2, $3)";
+        var insertParams = [req.body.username, hashedPassword, req.body.email];
+        await client.query(insertQuery, insertParams);
+        console.log("Successfully inserted the users table record");
+
+        // Create a corresponding entry in the progress table for this user
+        var progressInsertQuery = "INSERT INTO progress SELECT id, '0000000000000000000000000000000000000000000000000000000000000000' FROM users WHERE username = $1";
+        var progressInsertParams = [req.body.username];
+        await client.query(progressInsertQuery, progressInsertParams);
+
+        util.sendVerificationEmail(req.body.username, req.body.email, nodemailer);
+
+        return res.sendFile(__dirname + '/signup_success.html');
     }
     catch (err) {
         console.error(err);
-        // If the errorMsg has content, then this means the error that occurred is due to logic (e.g., username is already taken, password is incorrect)
-        // otherwise it is a different error, such as db connectivity or another unexpected error
-        if (errorMsg) {
-            res.render('signup', { text: errorMsg });
-        }
-        else {
-            res.sendFile(__dirname + "/error.html");
-        }
+        if (err == 'ExistingUsername')
+            res.render('signup', { text: 'Username is already taken. Please use a different username.' });
+        else if (err == 'ExistingEmail')
+            res.render('signup', { text: 'Email is already taken. Please use a different email.' });
+        else
+            res.render('error');
     }
 })
 
@@ -285,7 +287,7 @@ app.get('/verify', (req, res) => {
             else {
                 console.error("An unexpected error occurred. Either unable to connect to db or a query was unable to be successfully executed.");
             }
-            res.sendFile(__dirname + '/error.html');
+            res.render('error');
         })
 })
 
@@ -334,17 +336,22 @@ app.post('/forgot-password', async (req, res) => {
             var record = result.rows[0];
             var user_id = record.id;
             var username = record.username;
-            bcrypt.hash(token, saltRounds, async function (err, hash) {
-                //Insert into db
-                // Create and expiration timestamp which is 15 minutes ahead of the current timestamp
-                const currentTimestamp = new Date();
-                const expirationTimestamp = date_fns.addMinutes(currentTimestamp, 15);
-
-                var insertQuery = "INSERT INTO password_reset_tokens VALUES($1, $2, $3)";
-                var insertParams = [user_id, hash, expirationTimestamp];
-                await client.query(insertQuery, insertParams);
-                console.log("Successfully inserted the password_reset_tokens table record");
+            var hash = await new Promise((resolve, reject) => {
+                bcrypt.hash(token, saltRounds, (err, hash) => {
+                    if (err) reject(err);
+                    else resolve(hash);
+                })
             });
+
+            //Insert into db
+            // Create and expiration timestamp which is 15 minutes ahead of the current timestamp
+            const currentTimestamp = new Date();
+            const expirationTimestamp = date_fns.addMinutes(currentTimestamp, 15);
+
+            var insertQuery = "INSERT INTO password_reset_tokens VALUES($1, $2, $3)";
+            var insertParams = [user_id, hash, expirationTimestamp];
+            await client.query(insertQuery, insertParams);
+            console.log("Successfully inserted the password_reset_tokens table record");
 
             // Create and send reset email
             var href = 'http://' + process.env.IPV4 + ':3000/reset-password?token=' + token + '&username=' + username;
@@ -377,7 +384,7 @@ app.post('/forgot-password', async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.sendFile('error');
+        res.render('error');
     }
     finally {
         if (client)
@@ -390,26 +397,44 @@ app.post('/forgot-password', async (req, res) => {
 app.get('/reset-password', async (req, res) => {
     try {
         var token = req.query.token;
-        var currentTimestamp = new Date();
+        var username = req.query.username;
         var client = await pool.connect();
 
-        bcrypt.hash(token, saltRounds, async function (err, hash) {
-            //Insert into db
+        // Get all unexpired tokens for this user
+        var statement = "SELECT token FROM password_reset_tokens t JOIN users u ON t.user_id = u.id WHERE username = $1 AND token_expiration > $2";
+        var currentTimestamp = new Date();
+        var params = [username, currentTimestamp];
+        var queryResult = await client.query(statement, params);
 
-            var statement = "SELECT user_id FROM password_reset_tokens WHERE token = $1 AND token_expiration > $2";
-            var params = [hash, currentTimestamp];
-            var result = await client.query(statement, params);
-            if (result.rowCount == 1) {
-                res.render('reset_password', { username: req.query.username });
-            }
-            else {
-                throw "InvalidOrExpiredToken";
-            }
+        // Check to see if the token in the reset link matches any of the hashed tokens for this user
+        var result;
+        var promiseArray = queryResult.rows.map(async (row) => {
+            var hashedToken = row.token;
+            return new Promise((resolve, reject) => {
+                bcrypt.compare(token, hashedToken, (err, result) => {
+                    if (err) reject(err);
+                    else resolve(result);
+                });
+            });
         });
+
+        // If any of the hashed tokens for this user match the token in the reset link, return the reset password page
+        // (Theu ser could have requested multiple reset links that are all unexpired, so that is why we need to loop through and check each one for a possible match)
+        Promise.all(promiseArray).then(function (resultsArray) {
+            console.log(resultsArray);
+            var isValid = resultsArray.some(e => e); // checks to see if at least one of the promises resolved to true (token matched hashed token)
+            if (isValid)
+                res.render('reset_password', { username: username });
+            else
+                throw "InvalidOrExpiredToken";
+        }).catch(function (err) {
+            console.log(err);
+            res.render('error', { errMsg: "This link is invalid or has expired. Click <a href= '/forgot-password'>here</a> to generate a new password reset link." });
+        })
     }
     catch (err) {
         console.log(err);
-        res.sendFile('error');
+        res.render('error');
     }
     finally {
         if (client)
@@ -418,8 +443,28 @@ app.get('/reset-password', async (req, res) => {
 });
 
 app.post('/reset-password', async (req, res) => {
-    console.log("in reset password post");
-    res.render('reset_password', { result: "true" });
+    try {
+        var client = await pool.connect();
+        var newPassword = req.body.password;
+        var username = req.body.username;
+        var hashedPassword = await new Promise((resolve, reject) => {
+            bcrypt.hash(newPassword, saltRounds, async function (err, hash) {
+                if (err) reject(err);
+                else resolve(hash);
+            })
+        });
+
+        var updateStatement = 'UPDATE users SET password = $1 WHERE username = $2';
+        var updateParams = [hashedPassword, username];
+        await client.query(updateStatement, updateParams);
+
+        res.render('reset_password', { result: "true" });
+    }
+    catch (err) {
+        console.log(err)
+        res.render('error', { errMsg: 'An error occurred while resetting your password. Click <a href= "/forgot-password">here</a> to generate a new password reset link.' })
+    }
+
 });
 
 app.get('/signout', (req, res) => {

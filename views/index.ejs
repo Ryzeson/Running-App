@@ -7,7 +7,9 @@
     <title>Running App</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Google fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,13 +20,18 @@
 <body>
 
     <div class="container text-center mt-5 app-container">
-        <h2><%= username%>'s 5k Training Plan</h2>
+        <h2>
+            <%= username%>'s 5k Training Plan
+        </h2>
         <div class="table"></div>
-    <!-- // Use the - syntax to render variable as html -->
+        <!-- // Use the - syntax to render variable as html -->
         <div class="table"><%- table%></div>
+        <p class="small-text text-left">*This workout plan is from <a target="_blank"
+                href="https://marathonhandbook.com/couch-to-5k-training-plan/">marathonhandbook.com</a></p>
     </div>
 
-    <form method="GET" action="/signout" >
+
+    <form method="GET" action="/signout">
         <button type="submit">Sign out</button>
     </form>
 

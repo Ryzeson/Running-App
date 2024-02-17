@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PacePal</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container center-container">
+        <h1>Sorry!</h1>
+        <% if (locals.errMsg) { %>
+            <p><%- errMsg %></p>
+        <% } else { %>
+            <p>An unexpected error has occurred.</p> 
+        <!-- <p>An error has occured while attempting to login or signup. Please <a href="/">try again</a>, and if the error persists, please
+            contact <a href = "mailto: ryzeson@gmail.com">ryzeson@gmail.com</a>.</p> -->
+        <% } %>
+        <p>If the problem persists, please
+            contact <a href = "mailto: ryzeson@gmail.com">ryzeson@gmail.com</a>.</p>
+    </div>
+</body>
+
+</html>
