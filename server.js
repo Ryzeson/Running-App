@@ -14,6 +14,8 @@ const { Pool } = require('pg'); // Package for connecting to Postgres db
 // const pg = require('pg');
 // const Pool = pg.Pool;
 const session = require("express-session"); // Used for storing and retriving session state (e.g., userid)
+const crypto = require('crypto') // used to generate a sufficiently long and entropic token used for password reset token
+const date_fns = require('date-fns') // used for date operations, specifically for creating an expiration timestamp for the password reset table
 
 const util = require('./server_utils');
 
@@ -248,7 +250,6 @@ app.post("/signup", async (req, res) => {
     }
 })
 
-
 app.get('/verify', (req, res) => {
     var db_client;
     pool.connect()
@@ -286,21 +287,145 @@ app.get('/verify', (req, res) => {
             }
             res.sendFile(__dirname + '/error.html');
         })
-        console.log("here");
 })
+
+app.get('/forgot-password', (req, res) => {
+    res.render('forgot_password');
+});
+
+app.post('/forgot-password', async (req, res) => {
+    var email = req.body.userOrEmail
+
+    try {
+        // Determine user id
+        console.log(email.toLowerCase())
+        var client = await pool.connect();
+        var statement = 'SELECT id, username FROM users WHERE lower(email) = $1';
+        var params = [(email.toLowerCase())];
+        var result = await client.query(statement, params);
+
+        // Hash reset token and store in the db, if there is an account tied to this email
+        if (result.rowCount == 1) {
+            // Create reset token
+
+            // The below commented code is the original crypto.randomBytes method, which has a callback, and does not return a promise
+            // If we were to use this default function, the rest of the code in this if statement would need to be contained within this callback
+            // This is because we need the generated token to be available in order to hash it, insert it, and send the password reset email
+            // Having all of this in the callback function can be confusing, and I have come to prefer promises. Therefore I created a wrapper function
+            // that "promisifies" this randomBytes method, so I can simply await it.
+
+            // var token = crypto.randomBytes(48, function (err, buffer) {
+            //     var token = buffer.toString('hex');
+            // });
+
+            // Promise-based function wrapper (https://byby.dev/node-promisify)
+
+            var token = await new Promise((resolve, reject) => {
+                crypto.randomBytes(48, function (err, buffer) {
+                    if (err) {
+                        reject(err); // Reject the Promise with the error
+                    } else {
+                        resolve(buffer.toString('hex')); // Resolve the Promise with the result (the token)
+                    }
+                });
+            });
+
+            // Hash reset token
+            var record = result.rows[0];
+            var user_id = record.id;
+            var username = record.username;
+            bcrypt.hash(token, saltRounds, async function (err, hash) {
+                //Insert into db
+                // Create and expiration timestamp which is 15 minutes ahead of the current timestamp
+                const currentTimestamp = new Date();
+                const expirationTimestamp = date_fns.addMinutes(currentTimestamp, 15);
+
+                var insertQuery = "INSERT INTO password_reset_tokens VALUES($1, $2, $3)";
+                var insertParams = [user_id, hash, expirationTimestamp];
+                await client.query(insertQuery, insertParams);
+                console.log("Successfully inserted the password_reset_tokens table record");
+            });
+
+            // Create and send reset email
+            var href = 'http://' + process.env.IPV4 + ':3000/reset-password?token=' + token + '&username=' + username;
+
+            var message = 'Reset your password by clicking the following link: <a href="' + href + '"><button>Click Here</button></a> This link will expire 15 minutes after it was sent. Do not share this email.';
+
+            var mailOptions = {
+                from: process.env.EMAIL,
+                to: email,
+                subject: 'PacePal Password Reset',
+                html: message
+            };
+
+            var transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
+        }
+    }
+    catch (err) {
+        console.log(err);
+        res.sendFile('error');
+    }
+    finally {
+        if (client)
+            client.release();
+    }
+
+    res.render('forgot_password', { email: email });
+});
+
+app.get('/reset-password', async (req, res) => {
+    try {
+        var token = req.query.token;
+        var currentTimestamp = new Date();
+        var client = await pool.connect();
+
+        bcrypt.hash(token, saltRounds, async function (err, hash) {
+            //Insert into db
+
+            var statement = "SELECT user_id FROM password_reset_tokens WHERE token = $1 AND token_expiration > $2";
+            var params = [hash, currentTimestamp];
+            var result = await client.query(statement, params);
+            if (result.rowCount == 1) {
+                res.render('reset_password', { username: req.query.username });
+            }
+            else {
+                throw "InvalidOrExpiredToken";
+            }
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.sendFile('error');
+    }
+    finally {
+        if (client)
+            client.release();
+    }
+});
+
+app.post('/reset-password', async (req, res) => {
+    console.log("in reset password post");
+    res.render('reset_password', { result: "true" });
+});
 
 app.get('/signout', (req, res) => {
     req.session.destroy(function (err) {
         res.render("login");
     })
-})
-
-app.post('/test', async (req, res) => {
-    var client = await pool.connect();
-    var result = await client.query("SELECT * FROM progress where ID=$1", [1]);
-    var progressVal = result.rows[0].progress;
-    console.log(progressVal);
-    res.sendStatus(204); //https://restfulapi.net/http-status-204-no-content/
 })
 
 // Post route used by ajax request
@@ -314,13 +439,15 @@ app.post('/updateProgress', async (req, res) => {
         var progressVal = result.rows[0].progress;
         var newBit = progressVal.charAt(id - 1) == "0" ? "1" : "0";
         progressVal = progressVal.substring(0, id - 1) + newBit + progressVal.substring(id, progressVal.length);
-    
+
         await client.query("UPDATE progress SET progress=$2 WHERE id=$1", [userid, progressVal]);
-    
-        client.release();
     }
-    catch(err) {
-        print(err);
+    catch (err) {
+        console.log(err);
+    }
+    finally {
+        if (client)
+            client.release();
     }
 
     res.send(progressVal);

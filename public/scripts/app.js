@@ -69,6 +69,7 @@ function updateProgress(id) {
 }
 
 function updateDB(id) {
+    // Disable clicking on the cell while it is being updated
     var td = $("td#" + id);
     td.on("click", handler);
     td.off("click", addTDOptions);
@@ -81,7 +82,7 @@ function updateDB(id) {
             'id': id
         },
         success: function (data) {
-            // console.log(data);
+            // Enable clicking on the cell after it has been updated
             updateCellUI(id);
             td.off("click", handler);
             td.on("click", addTDOptions);
@@ -92,8 +93,8 @@ function updateDB(id) {
 
 // https://stackoverflow.com/questions/1755815/disable-all-click-events-on-page-javascript
 function handler(e) {
-  e.stopPropagation();
-  e.preventDefault();
+    e.stopPropagation();
+    e.preventDefault();
 }
 
 function updateCellUI(id) {

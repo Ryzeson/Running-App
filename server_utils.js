@@ -37,16 +37,15 @@ async function createProgressTable(progressStr) {
 }
 
 function sendVerificationEmail(username, email, nodemailer) {
-    console.log("Send mail");
     // Construct and send verification email
     var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + username;
 
-    var message = 'Verification link: <a href="' + href + '"><button>Click Here</button></a>';
+    var message = 'Click the following link to verify your email: <a href="' + href + '"><button>Click Here</button></a>';
 
     var mailOptions = {
         from: process.env.EMAIL,
         to: email,
-        subject: 'Running App Verification Email',
+        subject: 'PacePal Email Verification',
         html: message
     };
 
