@@ -33,13 +33,14 @@ app.use(session({
     // cookie: { secure: false }// this should be set to true, but needs to be false because right now the server only operates under https
 }));
 
-
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_DATABASE,
     password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT
+    port: process.env.DB_PORT,
+    max: 20,
+    idleTimeoutMillis: 30000
 });
 
 app.get("/", async function (req, res) {
@@ -92,14 +93,15 @@ app.post("/login", async function (req, res) {
             throw 'IncorrectUsernameOrPassword'; // Incorrect password
         }
         else {
-            // Create a session that stores this logged in user's info
             var idResult = await client.query("SELECT id FROM users WHERE username=$1", [username]);
             var userid = parseInt(idResult.rows[0].id);
-            req.session.userid = userid;
-            req.session.save();
 
             var progressStr = await getProgress(userid);
             var table = await util.createProgressTable(progressStr);
+
+            // Create a session that stores this logged in user's info
+            req.session.userid = userid;
+            req.session.save();
 
             res.render("index", { username: username, table: table });
         }

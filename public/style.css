@@ -18,6 +18,43 @@ span {
   margin-right: 10px;
 }
 
+.center-container {
+  margin-top: 20vh;
+  /* Move this content down, starting at 20% of the screen height */
+}
+
+input.submit {
+  margin-top: 2%;
+}
+
+.small-text {
+  margin-top: 2%;
+  font-size: .9em;
+}
+
+ol {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+/* *************
+*              *
+*    Navbar    *
+*              *
+************* */
+
+
+
+/* *****************
+*                  *
+*    Stopwatch     *
+*                  *
+***************** */
+
 .progress {
   border: 2px solid rgb(0, 0, 0);
   border-radius: 15px;
@@ -33,6 +70,12 @@ span {
   /* run */
   /* background-color: #E0ACEC; */
 }
+
+/* *********************************
+*                                  *
+*    Progress table (index.ejs)    *
+*                                  *
+********************************* */
 
 table {
   border-collapse: collapse;
@@ -114,33 +157,6 @@ a.button {
   color: var(--color5);
   text-align: center;
   user-select: none;
-}
-
-/* .app-container {
-    border: 2px solid black;
-} */
-
-.center-container {
-  margin-top: 20vh;
-  /* Move this content down, starting at 20% of the screen height */
-}
-
-input.submit {
-  margin-top: 2%;
-}
-
-.small-text {
-  margin-top: 2%;
-  font-size: .9em;
-}
-
-ol {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.hidden {
-  display: none;
 }
 
 /* Inside a td cell */
