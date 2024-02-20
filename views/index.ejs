@@ -17,7 +17,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="d-flex flex-column">
+
+    <%- include ("./navbar.ejs") %>
 
     <div class="container text-center mt-5 app-container">
         <h2>
@@ -29,11 +31,6 @@
         <p class="small-text text-left">*This workout plan is from <a target="_blank"
                 href="https://marathonhandbook.com/couch-to-5k-training-plan/">marathonhandbook.com</a></p>
     </div>
-
-
-    <form method="GET" action="/signout">
-        <button type="submit">Sign out</button>
-    </form>
 
     <!-- https://stackoverflow.com/questions/18271251/typeerror-ajax-is-not-a-function -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

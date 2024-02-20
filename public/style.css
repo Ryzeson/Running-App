@@ -14,6 +14,10 @@ body {
   background-color: var(--color1);
 }
 
+body, html {
+  height: 100%;
+}
+
 span {
   margin-right: 10px;
 }
@@ -40,14 +44,6 @@ ol {
 .hidden {
   display: none;
 }
-
-/* *************
-*              *
-*    Navbar    *
-*              *
-************* */
-
-
 
 /* *****************
 *                  *
@@ -187,4 +183,14 @@ p.workout-desc {
 
 .td-options-close:hover {
   background-color: red;
+}
+
+/* *************
+*              *
+*    Footer    *
+*              *
+************* */
+footer {
+  min-height: 40px;
+  background-color: var(--color4)
 }

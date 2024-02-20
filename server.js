@@ -49,8 +49,8 @@ app.get("/", async function (req, res) {
     if (req.session.userid) {
         var username = await getUsername(userid);
         var progressStr = await getProgress(userid);
-
         var table = await util.createProgressTable(progressStr);
+
         res.render("index", { username: username, table: table });
     }
     else
@@ -102,6 +102,10 @@ app.post("/login", async function (req, res) {
             // Create a session that stores this logged in user's info
             req.session.userid = userid;
             req.session.save();
+
+            // Set a flag in the ejs locals variable to show that a user is logged in
+            // This way, we can have front-end logic without the need to always pass this information everytime we call res.render()
+            res.locals.isLoggedIn = true;
 
             res.render("index", { username: username, table: table });
         }

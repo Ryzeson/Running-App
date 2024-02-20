@@ -8,64 +8,43 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add Font Awesome CSS for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 
 </head>
 
-<body>
+<!-- https://www.30secondsofcode.org/css/s/footer-at-the-bottom/ -->
+<!-- Need this so that we can keep the footer at the bottom of the page when there is not enough content to fill the screen -->
 
-    <!-- <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Dropdown
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Something else here</a>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled" href="#">Disabled</a>
-            </li>
-          </ul>
-        </div>
-      </nav> -->
+<body class="d-flex flex-column">
 
-    <div class="container center-container">
-        <div class="row">
-            <div class="col-md-6">
-                <h1>PacePal</h1>
-            </div>
-            <div class="col-md-6">
-                <form name="login" method="POST" action="/login">
-                    Username<br><input type="text" name="username" required ><br>
-                    Password<br><input type="password" name="password" required ><br>
-                    <input class="submit" type="submit" value="Login">
-                </form>
-                <% if(locals.reasonMsg) { %>
-                    <p class="small-text"><%= reasonMsg%></p>
-                <% } %>
-                <p class="small-text">If you do not have an account, <a class="button" href="/signup">Sign Up</a></p>
-                <p class="small-text"><a class="button" href="/forgot-password">Forgot password?</a></p>
+    <%- include ("./navbar.ejs") %>
+
+        <div class="container center-container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>PacePal</h1>
+                </div>
+                <div class="col-md-6">
+                    <form name="login" method="POST" action="/login">
+                        Username<br><input type="text" name="username" required><br>
+                        Password<br><input type="password" name="password" required><br>
+                        <input class="submit" type="submit" value="Login">
+                    </form>
+                    <% if(locals.reasonMsg) { %>
+                        <p class="small-text">
+                            <%= reasonMsg%>
+                        </p>
+                        <% } %>
+                            <p class="small-text">If you do not have an account, <a class="button" href="/signup">Sign
+                                    Up</a></p>
+                            <p class="small-text"><a class="button" href="/forgot-password">Forgot password?</a></p>
+                </div>
             </div>
         </div>
-    </div>
 
+        <%- include ("./footer.ejs") %>
 
 </body>
 
