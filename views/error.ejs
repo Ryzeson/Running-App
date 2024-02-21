@@ -12,6 +12,9 @@
 </head>
 
 <body class="d-flex flex-column">
+
+    <%- include ("./navbar.ejs") %>
+    
     <div class="container center-container">
         <h1>Sorry!</h1>
         <% if (locals.errMsg) { %>
@@ -24,6 +27,8 @@
         <p>If the problem persists, please
             contact <a href = "mailto: ryzeson@gmail.com">ryzeson@gmail.com</a>.</p>
     </div>
+
+    <%- include ("./footer.ejs") %>
 </body>
 
 </html>

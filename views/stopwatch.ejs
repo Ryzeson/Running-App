@@ -15,7 +15,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="d-flex flex-column">
+
+    <%- include ("./navbar.ejs") %>
 
     <div class="container text-center mt-5">
         <div class="timer">
@@ -29,6 +31,8 @@
         </div>
         <div class="btn btn-success mt-2" id="stop-start"><span id="stop-start-label">Start</span><i class="fa-solid fa-play" id="stop-start-icon"></i></div>
     </div>
+
+    <%- include ("./footer.ejs") %>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>

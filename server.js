@@ -51,6 +51,8 @@ app.get("/", async function (req, res) {
         var progressStr = await getProgress(userid);
         var table = await util.createProgressTable(progressStr);
 
+        res.locals.isLoggedIn = true;
+
         res.render("index", { username: username, table: table });
     }
     else
@@ -123,7 +125,8 @@ app.post("/login", async function (req, res) {
 })
 
 app.get('/stopwatch', (req, res) => {
-    res.sendFile(__dirname + '/stopwatch.html');
+    console.log("brug");
+    res.render('stopwatch');
 })
 
 app.get('/signup', (req, res) => {
