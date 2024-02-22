@@ -122,11 +122,19 @@ app.post("/login", async function (req, res) {
             res.render('error');
         }
     }
+    finally {
+        if (client)
+            client.release();
+    }
 })
 
 app.get('/stopwatch', (req, res) => {
-    console.log("brug");
-    res.render('stopwatch');
+    // Only show this file if the user is logged in!
+    if (req.session.userid)
+        res.render('stopwatch');
+    else
+        res.sendStatus("401");
+
 })
 
 app.get('/signup', (req, res) => {
@@ -514,17 +522,34 @@ app.listen(port, function () {
 
 // Helper functions
 async function getUsername(userid) {
-    var client = await pool.connect();
+    try {
+        var client = await pool.connect();
+        var result = await client.query("SELECT username FROM users WHERE id=$1", [userid]);
+    }
+    catch (err) {
+        res.render('error');
+    }
+    finally {
+        if (client)
+            client.release();
+    }
 
-    var result = await client.query("SELECT username FROM users WHERE id=$1", [userid]);
     return result.rows[0].username;
 }
 
 async function getProgress(userid) {
-    var client = await pool.connect();
-
-    // Query the database to get the string containing progress values
+    try {
+        var client = await pool.connect();
+            // Query the database to get the string containing progress values
     var result = await client.query("SELECT progress FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
+    }
+    catch (err) {
+        res.render('error');
+    }
+    finally {
+        if (client)
+            client.release();
+    }
 
     // Assuming that this progress query will always return one row (should check for this later)
     // This progressStr is a 64 character string of 0's and 1's
