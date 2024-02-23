@@ -1,0 +1,453 @@
+{
+  "workouts": [
+    {
+      "id": 1,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 2,
+      "desc": "10 x 2 min walk / 1 min run",
+      "intervals": [
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60]
+      ]
+    },
+    {
+      "id": 3,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 4,
+      "desc": "10 x 2 min walk / 1 min run",
+      "intervals": [
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60],
+        ["walk", 120],
+        ["run", 60]
+      ]
+    },
+    {
+      "id": 5,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 6,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 7,
+      "desc": "12 minute long run",
+      "intervals": [
+        ["run", 720]
+      ]
+    },
+    {
+      "id": 8,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 9,
+      "desc": "15 x 1 min walk / 1 min run",
+      "intervals": [
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60]
+      ]
+    },
+    {
+      "id": 10,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 11,
+      "desc": "15 x 1 min walk / 1 min run",
+      "intervals": [
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60],
+        ["walk", 60],
+        ["run", 60]
+      ]
+    },
+    {
+      "id": 12,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 13,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 14,
+      "desc": "18 minute long run",
+      "intervals": [
+        ["run", 1080]
+      ]
+    },
+    {
+      "id": 15,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 16,
+      "desc": "15 x 30 sec walk / 90 sec run",
+      "intervals": [
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90]
+      ]
+    },
+    {
+      "id": 17,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 18,
+      "desc": "15 x 30 sec walk / 90 sec run",
+      "intervals": [
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90],
+        ["walk", 30],
+        ["run", 90]
+      ]
+    },
+    {
+      "id": 19,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 20,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 21,
+      "desc": "26 minute long run",
+      "intervals": [
+        ["run", 1560]
+      ]
+    },
+    {
+      "id": 22,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 23,
+      "desc": "10 x 1 min walk / 2 min run",
+      "intervals": [
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120]
+      ]
+    },
+    {
+      "id": 24,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 25,
+      "desc": "10 x 1 min walk / 2 min run",
+      "intervals": [
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120],
+        ["walk", 60],
+        ["run", 120]
+      ]
+    },
+    {
+      "id": 26,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 27,
+      "desc": "Rest"
+    },
+    {
+      "id": 28,
+      "desc": "Run 5k"
+    },
+    {
+      "id": 29,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 30,
+      "desc": "2.5 mile run"
+    },
+    {
+      "id": 31,
+      "desc": "1.5 mile run"
+    },
+    {
+      "id": 32,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 33,
+      "desc": "2.5 mile run"
+    },
+    {
+      "id": 34,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 35,
+      "desc": "4 mile long run"
+    },
+    {
+      "id": 36,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 37,
+      "desc": "2.5 mile run"
+    },
+    {
+      "id": 38,
+      "desc": "1.5 mile run"
+    },
+    {
+      "id": 39,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 40,
+      "desc": "2.5 mile run"
+    },
+    {
+      "id": 41,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 42,
+      "desc": "4.5 mile long run"
+    },
+    {
+      "id": 43,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 44,
+      "desc": "3 mile run"
+    },
+    {
+      "id": 45,
+      "desc": "4 mile run"
+    },
+    {
+      "id": 46,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 47,
+      "desc": "3 mile run"
+    },
+    {
+      "id": 48,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 49,
+      "desc": "5 mile long run"
+    },
+    {
+      "id": 50,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 51,
+      "desc": "3 mile run"
+    },
+    {
+      "id": 52,
+      "desc": "4 mile run"
+    },
+    {
+      "id": 53,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 54,
+      "desc": "3 mile run"
+    },
+    {
+      "id": 55,
+      "desc": "Rest or cross-train"
+    },
+    {
+      "id": 56,
+      "desc": "Run 10k!"
+    }
+  ]
+}

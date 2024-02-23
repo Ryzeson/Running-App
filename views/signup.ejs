@@ -8,8 +8,14 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
+    <!-- Google fonts (all other text)-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
 
 </head>
 
@@ -17,42 +23,44 @@
 
     <%- include ("./navbar.ejs") %>
 
-    <div class="container center-container">
-        <div class="row">
-            <div class="col-md-6">
-                <h2>Register to track your workouts:</h2>
-            </div>
-            <div class="col-md-6">
-                <form name="signup" method="POST" action="/signup">
-                    Username<br><input type="text" name="username" required><br>
-                    Password<br><input type="password" name="password" required><br>
-                    Confirm password<br><input type="password" name="confirm-password" required><br>
-                    Email<br><input type="email" name="email" required>
-                    <a tabindex="0" class="submit" role="button" data-toggle="popover"
-                                data-trigger="focus" data-html="true"
-                                data-content="Why does this app need my email?
+        <div class="container center-container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Register to track your workouts:</h2>
+                </div>
+                <div class="col-md-3 register-box">
+                    <form name="signup" method="POST" action="/signup">
+                        Username<br><input class="login-signup-field" type="text" name="username" required><br>
+                        Password<br><input class="login-signup-field" type="password" name="password" required><br>
+                        Confirm password<br><input class="login-signup-field" type="password" name="confirm-password"
+                            required><br>
+                        Email<br><input class="login-signup-field" type="email" name="email" required>
+                        <a tabindex="0" class="submit" role="button" data-toggle="popover" data-trigger="focus"
+                            data-html="true" data-content="Why does this website need my email?
                                 <ol><li> To verify you are a real user and not a robot.</li>
                                     <li>To have a method to reset your password in case it is lost or stolen.</li></ol>
                                     This app will never send you any unwarranted emails.">
-                                <i class="fa-solid fa-circle-info"></i></a>
-                            <br>
-                    <input class="submit" type="submit" name="submit" value="Sign Up">
-                    <p class="small-text hidden" id="passwords-not-match-text">Passwords do not match</p>
-                    <% if(locals.text) { %>
-                        <p class="small-text"><%= text%></p>
-                    <% } %>
-                    <p class="small-text">Already have an account? <a class="button" href="/">Log in</a></p>
-                </form>
+                            <i class="fa-solid fa-circle-info"></i></a>
+                        <br>
+                        <input class="submit login-signup-btn" type="submit" name="submit" value="Sign Up">
+                        <p class="small-text hidden" id="passwords-not-match-text">Passwords do not match</p>
+                        <% if(locals.text) { %>
+                            <p class="small-text">
+                                <%= text%>
+                            </p>
+                            <% } %>
+                                <p class="small-text">Already have an account? <a class="button" href="/">Log in</a></p>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="scripts/signup.js"></script>
-    <script src="scripts/utils.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="scripts/signup.js"></script>
+        <script src="scripts/utils.js"></script>
 
-    <%- include ("./footer.ejs") %>
+        <%- include ("./footer.ejs") %>
 
 </body>
 

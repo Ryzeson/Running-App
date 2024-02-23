@@ -1,18 +1,15 @@
 function checkPasswords() {
-    console.log("checking password");
     var password = $('input[name="password"]').val();
     var confirmPassword = $('input[name="confirm-password"]').val();
     if (password != confirmPassword) {
         $('input[name="submit"]').prop("disabled", true);
-        if ($('#passwords-not-match-text').hasClass("hidden")) {
-            $('#passwords-not-match-text').toggleClass("hidden");
-        }
+        $('input[name="submit"]').addClass("disabled");
+        $('#passwords-not-match-text').removeClass("hidden");
     }
     else {
         $('input[name="submit"]').prop("disabled", false);
-        if (!$('#passwords-not-match-text').hasClass("hidden")){
-            $('#passwords-not-match-text').toggleClass("hidden");
-        }
+        $('input[name="submit"]').removeClass("disabled");
+        $('#passwords-not-match-text').addClass("hidden");
     }
 }
 

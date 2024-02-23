@@ -42,6 +42,10 @@ input.submit {
   font-size: .9em;
 }
 
+.smaller-text {
+  font-size: .8em;
+}
+
 ol {
   margin-top: 0;
   margin-bottom: 0;
@@ -51,8 +55,58 @@ ol {
   display: none;
 }
 
+/* *****************
+*                  *
+*      Login       *
+*                  *
+***************** */
+
 h1.title {
-  font-size: 4em;
+  font-size: 3em;
+}
+
+div.register-box {
+  background-color: rgb(140, 206, 228);
+  border-radius: 25px;
+  box-shadow: 1px 1px 4px black;
+  padding: 1%;
+}
+
+div.register-box:hover {
+  background-color: rgb(140, 196, 218);
+}
+
+/* https://stackoverflow.com/questions/1633522/html-input-element-wider-than-containing-div */
+input.login-signup-field {
+  box-sizing:border-box;
+  border-radius: 2px;
+  border-width: 1px;
+  width: 80%;
+  height: 80%;
+}
+
+input.login-signup-btn {
+  background-color: darkblue;
+  color: white;
+  border-radius: 2px;
+  border-width: 1px;
+  padding: 2px 8px;
+}
+
+input.login-signup-btn:hover {
+  background-color: blue;
+}
+
+input.login-signup-btn.disabled, input.login-signup-btn.disabled:hover {
+  background-color: gray;
+  color: black;
+  opacity: 50%;
+}
+
+/* https://stackoverflow.com/questions/6874402/remove-space-above-and-below-p-tag-html */
+p, ul {
+  margin: 0;
+  padding: 0;
 }
 
 /* *****************
@@ -82,6 +136,16 @@ h1.title {
 *    Progress table (index.ejs)    *
 *                                  *
 ********************************* */
+
+/* .nav-link.selected {
+  border: 1px solid black !important;
+  box-shadow: 1px 1px 10px black;
+}
+
+.nav-link.unselected {
+  background-color: gray !important;
+  opacity: 80% !important;
+} */
 
 .progress-container {
   width: 60%;

@@ -11,10 +11,14 @@
     <!-- Add Font Awesome CSS for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <!-- Google fonts -->
+    <!-- Google fonts (title) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chicle&display=swap" rel="stylesheet">
+    <!-- Google fonts (all other text)-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
 
 </head>
 
@@ -27,25 +31,25 @@
 
         <div class="container center-container">
             <div class="row">
-                <div class="col-md-6 text-center">
+                <div class="col-md-6 pl-5">
                     <h1 class="chicle-regular title">Kale's</h1>
                     <h1 class="chicle-regular title">Kilometers</h1>
-
+                    <p>Join to track your workouts and update your progress! </p>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3 register-box">
                     <form name="login" method="POST" action="/login">
-                        Username<br><input type="text" name="username" required><br>
-                        Password<br><input type="password" name="password" required><br>
-                        <input class="submit" type="submit" value="Login">
+                        Username<br><input class="login-signup-field" type="text" name="username" required><br>
+                        Password<br><input class="login-signup-field" type="password" name="password" required><br>
+                        <input class="submit login-signup-btn" type="submit" value="Login">
                     </form>
                     <% if(locals.reasonMsg) { %>
                         <p class="small-text">
                             <%= reasonMsg%>
                         </p>
                         <% } %>
-                            <p class="small-text">If you do not have an account, <a class="button" href="/signup">Sign
+                            <p class="small-text">Don't have an account? <a class="button" href="/signup">Sign
                                     Up</a></p>
-                            <p class="small-text"><a class="button" href="/forgot-password">Forgot password?</a></p>
+                            <p class="smaller-text"><a class="button" href="/forgot-password">Forgot password?</a></p>
                 </div>
             </div>
         </div>
