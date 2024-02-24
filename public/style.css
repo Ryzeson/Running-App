@@ -178,7 +178,7 @@ td {
   padding: 0px;
 }
 
-td.stopwatch {
+td.workout-cell {
   background-color: var(--color2);
 }
 

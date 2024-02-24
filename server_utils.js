@@ -5,7 +5,8 @@ module.exports = {
 
 async function createProgressTable(progressStr) {
     // Get the program data in json format
-    var response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
+    // var response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
+    var response = await fetch("https://www.ryzeson.org/Running-App/program_json/10k.json");
     var data = await response.json();
 
     // Creates the actual html table
@@ -24,8 +25,10 @@ async function createProgressTable(progressStr) {
         }
         let id = `id=${workout.id}`;
         let classValue = "class='";
-        if (workout.intervals != undefined)
-            classValue += "stopwatch";
+        // if (workout.intervals != undefined) 
+            // classValue += "stopwatch"; //this is no longer used currently
+        if (workout.desc.toLowerCase().includes('run') || workout.desc.toLowerCase().includes('walk'))
+            classValue += "workout-cell";
         var completedClass = progressStr.charAt(workout.id - 1) == "1" ? " completed" : "";
         classValue += completedClass;
         classValue += "'";
