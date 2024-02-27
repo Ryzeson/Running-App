@@ -25,8 +25,8 @@ async function createProgressTable(progressStr) {
         }
         let id = `id=${workout.id}`;
         let classValue = "class='";
-        // if (workout.intervals != undefined) 
-            // classValue += "stopwatch"; //this is no longer used currently
+        if (workout.intervals != undefined) 
+            classValue += "stopwatch ";
         if (workout.desc.toLowerCase().includes('run') || workout.desc.toLowerCase().includes('walk'))
             classValue += "workout-cell";
         var completedClass = progressStr.charAt(workout.id - 1) == "1" ? " completed" : "";
