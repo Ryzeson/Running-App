@@ -108,6 +108,19 @@ function removeTDOptions(td) {
         td.children().eq(td.children().length - 1).remove();
 }
 
+
+// Controls which nav-link tab is currently active
+$('button.nav-link').on("click", handleNavLinkClick);
+var prevClickedNav = $('button.nav-link.active');
+function handleNavLinkClick(e) {
+    var clickedNav = $(this);
+    clickedNav.toggleClass('active');
+    if (prevClickedNav)
+        prevClickedNav.toggleClass('active');
+
+    prevClickedNav = clickedNav;
+}
+
 // function createTable(data) {
 //     console.log(data);
 //     let table = generateTable(data);
