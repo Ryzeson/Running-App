@@ -1,28 +1,3 @@
-function generateTable(data) {
-    const rowLength = 7;
-    var currentRow = -1;
-
-    let table = '<table>';
-    // table += '<tr><th colspan="8">Day of the Week</th></tr>';
-    table += '<tr><th></th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th></tr>'
-    data.workouts.forEach(workout => {
-        let rowNum = Math.floor((workout.id - 1) / rowLength);
-        if (rowNum > currentRow) {
-            currentRow++;
-            let weekNum = parseInt(currentRow) + 1;
-            table += '<tr><td class="week-heading"><span>Week ' + weekNum + '</span></td>';
-        }
-        let id = `id=${workout.id}`;
-        let classValue = "class=";
-        if (workout.intervals != undefined)
-            classValue += 'stopwatch';
-        table += `<td ${id} ${classValue}><p class='workout-desc'>${workout.desc}</p></td>`; // add the workout id to the <td> element
-    });
-    table += '</table>';
-
-    return table;
-}
-
 function attachTDListener() {
     // $(this) with arrow syntax (=>) was not working; it was returning a reference to the entire window
     // By using function(e), $(this) actually points to the object calling this callback function, which is the td.stopwatch element 
@@ -113,21 +88,26 @@ function removeTDOptions(td) {
 $('button.nav-link').on("click", handleNavLinkClick);
 var prevClickedNav = $('button.nav-link.active');
 function handleNavLinkClick(e) {
+    // Show the correct tab as active
     var clickedNav = $(this);
     clickedNav.toggleClass('active');
-    if (prevClickedNav)
-        prevClickedNav.toggleClass('active');
+
+    // Show the correct workout table
+    var table_div_class = '.table-' + clickedNav.attr('id').substring(4);
+    console.log(table_div_class);
+    $(table_div_class).toggleClass('show');
+    $(table_div_class).toggleClass('active');
+
+    // Make the previous tab inactive
+    prevClickedNav.toggleClass('active');
+
+    // Hide the previous workout table
+    var prev_table_div_class = '.table-' + prevClickedNav.attr('id').substring(4);
+    console.log(prev_table_div_class);
+    $(prev_table_div_class).toggleClass('show');
+    $(prev_table_div_class).toggleClass('active');
 
     prevClickedNav = clickedNav;
 }
 
-// function createTable(data) {
-//     console.log(data);
-//     let table = generateTable(data);
-//     $(".table").html(table);
-
-//     attachTDListener();
-// }
-
-// parseJSON(createTable);
 attachTDListener();
