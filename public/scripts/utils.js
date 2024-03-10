@@ -2,8 +2,9 @@
 // The callback function is executed after the json is retrieved, and takes that json's data as a paramter
     // In index.ejs, the callback creates the table
     // In stopwatch.ejs, the callback initializes the timer values
-function parseJSON(callback) {
-    fetch("https://www.ryzeson.org/Running-App/program_json/10k.json")
+// TODO Think this has become obsolete, but keep as learning example
+function parseJSON(program, callback) {
+    fetch(`https://www.ryzeson.org/Running-App/program_json/${program}.json`)
         .then(response => {
             // console.log(response);
             return response.json(); // multiple line function, so you need to explicitly return the promise to continue the promise/then() chain

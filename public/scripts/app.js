@@ -1,7 +1,7 @@
 function attachTDListener() {
     // $(this) with arrow syntax (=>) was not working; it was returning a reference to the entire window
     // By using function(e), $(this) actually points to the object calling this callback function, which is the td.stopwatch element 
-    const td = $("td");
+    const td = $("td").not('.week-heading');
     td.on("click", addTDOptions);
 }
 
@@ -18,12 +18,13 @@ function addTDOptions(e) {
             removeTDOptions($(this));
         }
         else {
-            let workoutID = this.id;
+            let workout = this.id;
+            console.log(typeof workout)
             let tdOptions = $(this).html();
             tdOptions += "<div class='td-options'>";
             tdOptions += "<div class='d-flex justify-between align-items-center'>"
             tdOptions += "<button class='td-options-close mr-1'>X</button>";
-            tdOptions += `<form id="form" action="" method="get" onChange="updateProgress(${workoutID})">`;
+            tdOptions += `<form id="form" action="" method="get" onChange="updateProgress('${workout}')">`;
             tdOptions += 'Completed: <input type="checkbox" name="isCompleted"';
             if ($(this).hasClass("completed"))
                 tdOptions += ' checked';
@@ -31,7 +32,7 @@ function addTDOptions(e) {
             tdOptions += '</form>';
             tdOptions += "</div>"
             if ($(this).hasClass("stopwatch")) {
-                tdOptions += `<a class="workout" type="button" href="/stopwatch?workoutID=${workoutID}">Go to Workout</a>`;
+                tdOptions += `<a class="workout" type="button" href="/stopwatch?workout=${workout}">Go to Workout</a>`;
             }
             tdOptions += "</div>";
             $(this).html(tdOptions);
@@ -39,13 +40,13 @@ function addTDOptions(e) {
     }
 }
 
-function updateProgress(id) {
-    updateDB(id);
+function updateProgress(workout) {
+    updateDB(workout);
 }
 
-function updateDB(id) {
+function updateDB(workout) {
     // Disable clicking on the cell while it is being updated
-    var td = $("td#" + id);
+    var td = $("td#" + workout);
     td.on("click", handler);
     td.off("click", addTDOptions);
 
@@ -54,11 +55,11 @@ function updateDB(id) {
         url: '/updateProgress', //can use relative path because this will be on the same domain as the node server
         type: "POST",
         data: {
-            'id': id
+            'workout': workout
         },
         success: function (data) {
             // Enable clicking on the cell after it has been updated
-            updateCellUI(id);
+            updateCellUI(workout);
             td.off("click", handler);
             td.on("click", addTDOptions);
             $('*').css('cursor', '');
@@ -94,7 +95,6 @@ function handleNavLinkClick(e) {
 
     // Show the correct workout table
     var table_div_class = '.table-' + clickedNav.attr('id').substring(4);
-    console.log(table_div_class);
     $(table_div_class).toggleClass('show');
     $(table_div_class).toggleClass('active');
 
@@ -103,11 +103,13 @@ function handleNavLinkClick(e) {
 
     // Hide the previous workout table
     var prev_table_div_class = '.table-' + prevClickedNav.attr('id').substring(4);
-    console.log(prev_table_div_class);
     $(prev_table_div_class).toggleClass('show');
     $(prev_table_div_class).toggleClass('active');
 
     prevClickedNav = clickedNav;
+
+    // Update program name in header
+    $("span#program-name").html(clickedNav.attr('id').substring(4));
 }
 
 attachTDListener();

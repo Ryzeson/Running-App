@@ -1,17 +1,11 @@
 module.exports = {
     createProgressTable: createProgressTable,
-    sendVerificationEmail : sendVerificationEmail
-  };
+    sendVerificationEmail: sendVerificationEmail
+};
 
 async function createProgressTable(progressStr, program) {
     // Get the program data in json format
-    console.log(program)
-    if (program == '5k')
-        var response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
-    else if (program == '10k')
-        var response = await fetch("https://www.ryzeson.org/Running-App/program_json/10k.json");
-    else
-        throw 'InvalidProgram'
+    var response = await fetch(`https://www.ryzeson.org/Running-App/program_json/${program}.json`);
     var data = await response.json();
 
     // Creates the actual html table
@@ -28,9 +22,9 @@ async function createProgressTable(progressStr, program) {
             let weekNum = parseInt(currentRow) + 1;
             table += '<tr><td class="week-heading"><span>Week ' + weekNum + '</span></td>';
         }
-        let id = `id=${workout.id}`;
+        let id = `id=${program}-${workout.id}`;
         let classValue = "class='";
-        if (workout.intervals != undefined) 
+        if (workout.intervals != undefined)
             classValue += "stopwatch ";
         if (workout.desc.toLowerCase().includes('run') || workout.desc.toLowerCase().includes('walk'))
             classValue += "workout-cell";
@@ -44,6 +38,7 @@ async function createProgressTable(progressStr, program) {
     return table;
 }
 
+
 function sendVerificationEmail(username, email, nodemailer) {
     // Construct and send verification email
     var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + username;
@@ -53,7 +48,7 @@ function sendVerificationEmail(username, email, nodemailer) {
     var mailOptions = {
         from: process.env.EMAIL,
         to: email,
-        subject: 'PacePal Email Verification',
+        subject: 'Kale\'s Kilometers Email Verification',
         html: message
     };
 

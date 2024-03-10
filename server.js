@@ -49,18 +49,15 @@ app.get("/", async function (req, res) {
     if (req.session.userid) {
         try {
             var username = await getUsername(userid);
-            var progressStr = await getProgress(userid);
-            var table5k = await util.createProgressTable(progressStr, "5k");
-            var table10k = await util.createProgressTable(progressStr, "10k");
+            var progressStrings = await getProgress(userid);
+            var table5k = await util.createProgressTable(progressStrings._5k, '5k');
+            var table10k = await util.createProgressTable(progressStrings._10k, '10k');
     
             res.locals.isLoggedIn = true;
     
             res.render("index", { username: username, table5k: table5k, table10k: table10k });
         }
         catch (err) {
-            if (err == 'InvalidProgram') {
-                console.error('Invalid program data', err);
-            }
             res.render('error');
         }
     }
@@ -107,9 +104,9 @@ app.post("/login", async function (req, res) {
             var idResult = await client.query("SELECT id FROM users WHERE username=$1", [username]);
             var userid = parseInt(idResult.rows[0].id);
 
-            var progressStr = await getProgress(userid);
-            var table5k = await util.createProgressTable(progressStr, '5k');
-            var table10k = await util.createProgressTable(progressStr, '10k');
+            var progressStrings = await getProgress(userid);
+            var table5k = await util.createProgressTable(progressStrings._5k, '5k');
+            var table10k = await util.createProgressTable(progressStrings._10k, '10k');
 
             // Create a session that stores this logged in user's info
             req.session.userid = userid;
@@ -127,10 +124,6 @@ app.post("/login", async function (req, res) {
             res.render("login", { reasonMsg: 'Your email is not verified yet. Please check your inbox for an email containing your verification link.' });
         else if (err == 'IncorrectUsernameOrPassword') // This is combined into a single error, because we don't want to give any indication if a user does / does not exist, due to security concerns
             res.render("login", { reasonMsg: 'Your username or password is incorrect. Please try again.' });
-        else if (err == 'InvalidProgram') {
-            console.error('Invalid program data was requested', err);
-            res.render('error');
-        }
         else {
             console.error('Error connecting to database or executing query', err);
             res.render('error');
@@ -148,7 +141,6 @@ app.get('/stopwatch', (req, res) => {
         res.render('stopwatch');
     else
         res.sendStatus("401");
-
 })
 
 app.get('/signup', (req, res) => {
@@ -331,7 +323,6 @@ app.post('/forgot-password', async (req, res) => {
 
     try {
         // Determine user id
-        console.log(email.toLowerCase())
         var client = await pool.connect();
         var statement = 'SELECT id, username FROM users WHERE lower(email) = $1';
         var params = [(email.toLowerCase())];
@@ -392,7 +383,7 @@ app.post('/forgot-password', async (req, res) => {
             var mailOptions = {
                 from: process.env.EMAIL,
                 to: email,
-                subject: 'PacePal Password Reset',
+                subject: 'Kale\'s Kilometers Password Reset',
                 html: message
             };
 
@@ -450,7 +441,7 @@ app.get('/reset-password', async (req, res) => {
         });
 
         // If any of the hashed tokens for this user match the token in the reset link, return the reset password page
-        // (Theu ser could have requested multiple reset links that are all unexpired, so that is why we need to loop through and check each one for a possible match)
+        // (The user could have requested multiple reset links that are all unexpired, so that is why we need to loop through and check each one for a possible match)
         Promise.all(promiseArray).then(function (resultsArray) {
             console.log(resultsArray);
             var isValid = resultsArray.some(e => e); // checks to see if at least one of the promises resolved to true (token matched hashed token)
@@ -508,15 +499,20 @@ app.get('/signout', (req, res) => {
 app.post('/updateProgress', async (req, res) => {
     var userid = req.session.userid;
     console.log("Updating progress vale as ", userid);
-    var id = req.body.id;
+    var workout = req.body.workout;
+    let program = '_' + workout.split('-')[0];
+    let workoutID = workout.split('-')[1];
     try {
         var client = await pool.connect();
         var result = await client.query("SELECT * FROM progress WHERE id=$1", [userid]);
-        var progressVal = result.rows[0].progress;
-        var newBit = progressVal.charAt(id - 1) == "0" ? "1" : "0";
-        progressVal = progressVal.substring(0, id - 1) + newBit + progressVal.substring(id, progressVal.length);
+        var progressVal = result.rows[0][program];
 
-        await client.query("UPDATE progress SET progress=$2 WHERE id=$1", [userid, progressVal]);
+        var newBit = progressVal.charAt(workoutID - 1) == "0" ? "1" : "0";
+        progressVal = progressVal.substring(0, workoutID - 1) + newBit + progressVal.substring(workoutID, progressVal.length);
+
+        //TODO update this logic and db to add column for each workout
+        
+        await client.query(`UPDATE progress SET "${program}"=$2 WHERE id=$1`, [userid, progressVal]);
     }
     catch (err) {
         console.log(err);
@@ -555,10 +551,10 @@ async function getProgress(userid) {
     try {
         var client = await pool.connect();
         // Query the database to get the string containing progress values
-        var result = await client.query("SELECT progress FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
+        var result = await client.query("SELECT * FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
     }
     catch (err) {
-        res.render('error');
+        throw err
     }
     finally {
         if (client)
@@ -567,5 +563,5 @@ async function getProgress(userid) {
 
     // Assuming that this progress query will always return one row (should check for this later)
     // This progressStr is a 64 character string of 0's and 1's
-    return result.rows[0].progress;
+    return result.rows[0];
 }

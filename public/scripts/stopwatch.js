@@ -153,8 +153,7 @@ function getQueryVariable(variable) {
     Initialization
 */
 
-function setUpTimer(data) {
-    let workoutID = getQueryVariable('workoutID');
+function setUpTimer(data, workoutID) {
     id = data.workouts[workoutID - 1].id;
     desc = data.workouts[workoutID - 1].desc;
     let intervalsFromJSON = data.workouts[workoutID - 1].intervals;
@@ -166,7 +165,16 @@ function setUpTimer(data) {
 }
 
 function init() {
-    parseJSON(setUpTimer);
+    let workout = getQueryVariable('workout');
+    let program = workout.split('-')[0];
+    let workoutID = workout.split('-')[1];
+    fetch(`https://www.ryzeson.org/Running-App/program_json/${program}.json`)
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            setUpTimer(data, workoutID);
+        });
 }
 
 init();

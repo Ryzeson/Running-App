@@ -28,6 +28,10 @@ span {
   margin-right: 10px;
 }
 
+span#program-name {
+  margin: 0px;
+}
+
 .center-container {
   margin-top: 20vh;
   /* Move this content down, starting at 20% of the screen height */
@@ -109,6 +113,14 @@ p, ul {
   padding: 0;
 }
 
+#forgot-password-email {
+  margin-top: 8px;
+}
+
+input {
+  font-family: sans-serif;
+}
+
 /* *****************
 *                  *
 *    Stopwatch     *
@@ -186,6 +198,10 @@ td:hover {
   background-color: var(--color1);
   transition: background-color 0.4s;
   cursor: pointer;
+}
+
+td.week-heading {
+  cursor: default;
 }
 
 /* td.week-heading span {
