@@ -47,13 +47,22 @@ app.get("/", async function (req, res) {
     // If the user's session exists, skip the login page and take them directly to the main page that contains the progress table
     var userid = req.session.userid;
     if (req.session.userid) {
-        var username = await getUsername(userid);
-        var progressStr = await getProgress(userid);
-        var table = await util.createProgressTable(progressStr);
-
-        res.locals.isLoggedIn = true;
-
-        res.render("index", { username: username, table: table });
+        try {
+            var username = await getUsername(userid);
+            var progressStr = await getProgress(userid);
+            var table5k = await util.createProgressTable(progressStr, "5k");
+            var table10k = await util.createProgressTable(progressStr, "10k");
+    
+            res.locals.isLoggedIn = true;
+    
+            res.render("index", { username: username, table5k: table5k, table10k: table10k });
+        }
+        catch (err) {
+            if (err == 'InvalidProgram') {
+                console.error('Invalid program data', err);
+            }
+            res.render('error');
+        }
     }
     else
         res.render("login");
@@ -99,7 +108,8 @@ app.post("/login", async function (req, res) {
             var userid = parseInt(idResult.rows[0].id);
 
             var progressStr = await getProgress(userid);
-            var table = await util.createProgressTable(progressStr);
+            var table5k = await util.createProgressTable(progressStr, '5k');
+            var table10k = await util.createProgressTable(progressStr, '10k');
 
             // Create a session that stores this logged in user's info
             req.session.userid = userid;
@@ -109,7 +119,7 @@ app.post("/login", async function (req, res) {
             // This way, we can have front-end logic without the need to always pass this information everytime we call res.render()
             res.locals.isLoggedIn = true;
 
-            res.render("index", { username: username, table: table });
+            res.render("index", { username: username, table5k: table5k, table10k: table10k });
         }
     }
     catch (err) {
@@ -117,6 +127,10 @@ app.post("/login", async function (req, res) {
             res.render("login", { reasonMsg: 'Your email is not verified yet. Please check your inbox for an email containing your verification link.' });
         else if (err == 'IncorrectUsernameOrPassword') // This is combined into a single error, because we don't want to give any indication if a user does / does not exist, due to security concerns
             res.render("login", { reasonMsg: 'Your username or password is incorrect. Please try again.' });
+        else if (err == 'InvalidProgram') {
+            console.error('Invalid program data was requested', err);
+            res.render('error');
+        }
         else {
             console.error('Error connecting to database or executing query', err);
             res.render('error');
@@ -540,8 +554,8 @@ async function getUsername(userid) {
 async function getProgress(userid) {
     try {
         var client = await pool.connect();
-            // Query the database to get the string containing progress values
-    var result = await client.query("SELECT progress FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
+        // Query the database to get the string containing progress values
+        var result = await client.query("SELECT progress FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
     }
     catch (err) {
         res.render('error');

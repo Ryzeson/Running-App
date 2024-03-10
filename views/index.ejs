@@ -41,8 +41,8 @@
             type="button" role="tab" aria-controls="nav-home" aria-selected="true">5k</button>
           <button class="nav-link" id="nav-10k" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button"
             role="tab" aria-controls="nav-marathon" aria-selected="false">10k</button>
-          <button class="nav-link" id="nav-marathon" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button"
-            role="tab" aria-controls="nav-contact" aria-selected="false">Marathon</button>
+          <!-- <button class="nav-link" id="nav-marathon" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button"
+            role="tab" aria-controls="nav-contact" aria-selected="false">Marathon</button> -->
         </div>
       </nav>
       <div class="tab-content" id="nav-tabContent">
@@ -50,12 +50,12 @@
         </div>
         <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">qwerqwerew</div>
         <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">xzcvxzcv</div> -->
-        <div class="tab-pane table show active table-5k">table 1<%- table%></div>
-        <div class="tab-pane table table-10k">table2 <%- table%></div>
-        <div class="tab-pane table table-marathon">table3 <%- table%></div>
+        <div class="tab-pane table show active table-5k"><%- table5k%></div>
+        <div class="tab-pane table table-10k"><%- table10k%></div>
+        <!-- <div class="tab-pane table table-marathon">table3 <table-marathon></div> -->
       </div>
 
-      <!-- // Use the - syntax to render variable as html -->
+      <!-- // Use the - syntax to render a variable as html -->
 
       <p class="credits-text text-left">*This workout plan is from <a target="_blank"
           href="https://marathonhandbook.com/couch-to-5k-training-plan/">marathonhandbook.com</a></p>

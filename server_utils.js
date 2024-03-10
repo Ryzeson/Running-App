@@ -3,10 +3,15 @@ module.exports = {
     sendVerificationEmail : sendVerificationEmail
   };
 
-async function createProgressTable(progressStr) {
+async function createProgressTable(progressStr, program) {
     // Get the program data in json format
-    // var response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
-    var response = await fetch("https://www.ryzeson.org/Running-App/program_json/10k.json");
+    console.log(program)
+    if (program == '5k')
+        var response = await fetch("https://www.ryzeson.org/Running-App/program_json/5k.json");
+    else if (program == '10k')
+        var response = await fetch("https://www.ryzeson.org/Running-App/program_json/10k.json");
+    else
+        throw 'InvalidProgram'
     var data = await response.json();
 
     // Creates the actual html table
