@@ -23,14 +23,14 @@ const port = process.env.PORT || 3000
 
 // Set middleware
 app.use(express.urlencoded({ extended: true })); // To parse incoming requests, including JSON and form data
-// app.use(express.json()) // To parse the incoming requests with JSON payloads
+// app.use(express.json()) // To parse the incoming requests with JSON payloads, made redundant by the line above
 app.use(express.static('public')); // Allows express to serve static files, which should be stored in a folder called 'public'
 
 app.use(session({
     secret: "secrettext",
     saveUninitialized: true,
     resave: true
-    // cookie: { secure: false }// this should be set to true, but needs to be false because right now the server only operates under https
+    // cookie: { secure: false }// this should be set to true, but needs to be false because right now the server only operates under http
 }));
 
 const pool = new Pool({
@@ -428,7 +428,6 @@ app.get('/signout', (req, res) => {
 // Post route used by ajax request
 app.post('/updateProgress', async (req, res) => {
     var userid = req.session.userid;
-    console.log("Updating progress vale as ", userid);
     var workout = req.body.workout;
     let program = '_' + workout.split('-')[0];
     let workoutID = workout.split('-')[1];

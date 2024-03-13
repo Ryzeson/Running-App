@@ -1,3 +1,4 @@
+
 // Using promises
 // app.post('/signup', (req, res) => {
 //     var db_client;
@@ -12,6 +13,7 @@
 //         // First check if this username (primary key) exists in the database. If it does, ask the user to pick a different username
 //         if (result.rows.length > 0) {
 //             errorMsg = "Username is already taken. Please use a different username.";
+//             // Note that I use Promise.reject as the failure case here, but you can also throw an error for the same effect (//https://stackoverflow.com/questions/33445415/javascript-promises-reject-vs-throw)
 //             return Promise.reject(errorMsg);
 //         }
 //         else {
