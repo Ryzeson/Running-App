@@ -33,9 +33,9 @@ There were many times where I would want to render a page, but make some slight 
 ## Code Pipeline
 
 ## Parameter Store
+I chose to store the values required in the application's `.env` file in the AWS Parameter Store. I remember learning about both the Parameter Store and the Secrets Manager while studying for my AWS Associate Developer exam. I chose to use AWS Parameter Store over Secrets Manager because this seems to be the recommended solution for EC2 instances, has built-in encryption options, and Parameter Store is free. This turned out to be a very convenient and easy to use service.
 
 ## Security (?)
-
 
 # Database
 
@@ -51,28 +51,29 @@ Below is the ERD for this application's database. It is very simple, but even th
 ![alt text](../db/running_app_erd.png)
 
 ## users
+The user table has an auto-generated integer id, that is used as the primary key to uniquely identify each user in the system. They also have a unique username. The username must be unique because that is what they use to login. I did not make the username the primary key for this table, because I thought about potential functionality of letting the user change their username, which is a common use case in many other applications. In the case that the username was the primary key, you would also need to update this in all other tables where it was being used as a foreign key. Additionally, it is much easier to use a short arbitrary id when joining to other tables and store in the user session, than it is to use a username, in my opinion.
+
+This table also contains the user's hashed password, a unique email, and 'verified' flag. The email must be unique because this is what is used to reset their password. If multiple users shared the same email, the application would not know which user's password to reset. The 'verified' flag determines if the user has clicked the link in the email verificaiton link. If this step is not done, the user is not allowed to login.
 
 ## progress
+The progress table has a unique id that is the foreign key of the users table's id attribute. When a user signs up, a record in this progress table is created at the same time as the record in the users table is created. Every other column in this table corresponds to the user's progress for a specific program (e.g., column _5k stores their 5k program progress). Each of thse is represented as a string of bits of 0's and 1's, representing which days are in progress or completed.
 
 ## password_reset_tokens
+This table has a composite key consisting of a user_id, a foreign key of the users table's id attribute, and a (hashed) password reset token. This table's key is more than just user_id, because a user can request a password reset link multiple times, which would create multiple records in the database. Each of these will have a unique reset token that is contained in the password reset link, though. This table also has a timestamp that is 15 minutes after the token was generated. The application will check to see if this token is not exipred before allowing the user to reset their password. This is added as a security measure, because while the tokens are made sufficiently long and entropic, we wouldn't want a potential hacker to have unlimited time to try and brute force the code contained in a password reset link.
 
 # User management
 
 ## Session management
 
-## Signup
-
-## Login
-
 ## Forgot Password
 
 ### bcrypt
-This lets us hash passwords, by specifying a number of "salt" rounds we want to apply. I need to do more research about how hasing methods, and how this works under the hood.
+This library helps to hash passwords. You can even specify the number of "salt" rounds you want applied, depending on the complexity needed. I need to do more research about how different hashing methods, and how this works under the hood.
 
 # General Concepts
 
 ## Error Handling
-
+This was another area that should have been relatively straightforward, but I found to be tricky coming from a Java background. Java lets you handle different types of exceptions with the use of multiple catch blocks. You are only allowed one catch block for each try block in JavaScript, so if you need more control handling specific errors, you must do so using if/else within the catch block. Also, it is wise to either make your custom errors either extend the Error class, or throw actual Error objects with unique names, instead of just throwing strings/other objects like was doing for most of this project.
 
 ## Ajax
 This was actually my first time using and learning about ajax. In this project, an ajax call allowed me to update the progress table dynamically, without the need to refresh the page or send back an entirely new page upon recieving a response from the server. I was going to just use the 204 response code (no content) which would have served the same purpose, but the 'Completed' checkbox did not have a submit button on its form, so I couldn't trigger a post route.

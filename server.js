@@ -52,12 +52,14 @@ app.get("/", async function (req, res) {
             var progressStrings = await getProgress(userid);
             var table5k = await util.createProgressTable(progressStrings._5k, '5k');
             var table10k = await util.createProgressTable(progressStrings._10k, '10k');
-    
+
             res.locals.isLoggedIn = true;
-    
+
             res.render("index", { username: username, table5k: table5k, table10k: table10k });
         }
         catch (err) {
+            if (err.message == 'NoSingleRow')
+                console.error('Query returned zero or more than 1 row for userid' + userid, err);
             res.render('error');
         }
     }
@@ -81,12 +83,12 @@ app.post("/login", async function (req, res) {
         var queryResult = await client.query(query, params);
         // This 'queryResult' variable contains lots of information in json format. 'rows' is just one part that we can access
         if (queryResult.rows.length == 0) {
-            throw 'IncorrectUsernameOrPassword'; // Incorrect username
+            res.render("login", { reasonMsg: 'Your username or password is incorrect. Please try again.' });
         }
         var hash = queryResult.rows[0].password;
         var db_verified = queryResult.rows[0].verified;
         if (db_verified == 'N')
-            throw 'UnverifiedEmail';
+            res.render("login", { reasonMsg: 'Your email is not verified yet. Please check your inbox for an email containing your verification link.' });
         var form_password = req.body.password;
 
         // Returns true if the password entered in this login form matches the one we have hashed in the db
@@ -98,7 +100,7 @@ app.post("/login", async function (req, res) {
         });
 
         if (!result) {
-            throw 'IncorrectUsernameOrPassword'; // Incorrect password
+            res.render("login", { reasonMsg: 'Your username or password is incorrect. Please try again.' });
         }
         else {
             var idResult = await client.query("SELECT id FROM users WHERE username=$1", [username]);
@@ -120,14 +122,9 @@ app.post("/login", async function (req, res) {
         }
     }
     catch (err) {
-        if (err == 'UnverifiedEmail')
-            res.render("login", { reasonMsg: 'Your email is not verified yet. Please check your inbox for an email containing your verification link.' });
-        else if (err == 'IncorrectUsernameOrPassword') // This is combined into a single error, because we don't want to give any indication if a user does / does not exist, due to security concerns
-            res.render("login", { reasonMsg: 'Your username or password is incorrect. Please try again.' });
-        else {
-            console.error('Error connecting to database or executing query', err);
-            res.render('error');
-        }
+        if (err.message == 'NoSingleRow')
+            console.error('Query returned zero or more than 1 row for userid' + userid, err);
+        res.render('error');
     }
     finally {
         if (client)
@@ -159,7 +156,7 @@ app.post("/signup", async (req, res) => {
         // First check if this username (primary key) exists in the database. If it does, ask the user to pick a different username
         var emailResult;
         if (result.rows.length > 0) {
-            throw 'ExistingUsername';
+            throw new Error('ExistingUsername');
         }
         // No matches found, username is not taken
         // Table also requires email to be unique, so check that the email is not taken either
@@ -168,7 +165,7 @@ app.post("/signup", async (req, res) => {
         emailResult = await client.query(emailQuery, emailParam);
 
         if (emailResult.rows.length > 0) {
-            throw 'ExistingEmail';
+            throw new Error('ExistingEmail');
         }
         // Email is not taken. Insert this record into the table
         // Hash password
@@ -196,9 +193,9 @@ app.post("/signup", async (req, res) => {
     }
     catch (err) {
         console.error(err);
-        if (err == 'ExistingUsername')
+        if (err.message == 'ExistingUsername')
             res.render('signup', { text: 'Username is already taken. Please use a different username.' });
-        else if (err == 'ExistingEmail')
+        else if (err.message == 'ExistingEmail')
             res.render('signup', { text: 'Email is already taken. Please use a different email.' });
         else
             res.render('error');
@@ -225,11 +222,9 @@ app.get('/verify', (req, res) => {
         }).then(result => {
             res.sendFile(__dirname + '/verified_email.html');
         }).catch(err => {
-            console.error('Error ', err);
-
-            // Example of how to handle multiple types of erros within one single catch block
+            // Example of how to handle multiple types of errors within one single catch block
             // The first if statement is a custom error, created to account for custom application logic, and thrown when Promise.reject() is called
-            // If an error occurs while calling db_client, an error object comes back, and the err.code attribute tells us what went wrong. I cover one of these cases
+            // If an error occurs while calling db_client, an error object comes back, and the err.code attribute tells us what went wrong. I cover one of these cases below
             // Postgres error code reference: https://www.postgresql.org/docs/current/errcodes-appendix.html
             if (err == "NoSingleUser") {
                 console.error("Username does not exist, or exists multiple times. At this point, only one should exist.");
@@ -238,7 +233,7 @@ app.get('/verify', (req, res) => {
                 console.error("There is a syntax error in one of the executed queries.");
             }
             else {
-                console.error("An unexpected error occurred. Either unable to connect to db or a query was unable to be successfully executed.");
+                console.error("An unexpected error occurred. Unable to connect to db or a query was unable to be successfully executed.");
             }
             res.render('error');
         })
@@ -249,7 +244,7 @@ app.get('/forgot-password', (req, res) => {
 });
 
 app.post('/forgot-password', async (req, res) => {
-    var email = req.body.userOrEmail
+    var email = req.body.email
 
     try {
         // Determine user id
@@ -259,21 +254,23 @@ app.post('/forgot-password', async (req, res) => {
         var result = await client.query(statement, params);
 
         // Hash reset token and store in the db, if there is an account tied to this email
-        if (result.rowCount == 1) {
+        if (result.rowCount != 1) {
+            throw new Error('NoSingleUser');
+        }
+        else {
             // Create reset token
 
             // The below commented code is the original crypto.randomBytes method, which has a callback, and does not return a promise
             // If we were to use this default function, the rest of the code in this if statement would need to be contained within this callback
-            // This is because we need the generated token to be available in order to hash it, insert it, and send the password reset email
-            // Having all of this in the callback function can be confusing, and I have come to prefer promises. Therefore I created a wrapper function
-            // that "promisifies" this randomBytes method, so I can simply await it.
+            // This is because we need the generated token to be available in order to hash it, insert it into the db, and send the password reset email
+            // Having all of this in the callback function can be confusing, and I have come to prefer promises.
+            // Therefore I created a wrapper function that "promisifies" this randomBytes method, so I can simply await it.
 
             // var token = crypto.randomBytes(48, function (err, buffer) {
             //     var token = buffer.toString('hex');
             // });
 
             // Promise-based function wrapper (https://byby.dev/node-promisify)
-
             var token = await new Promise((resolve, reject) => {
                 crypto.randomBytes(48, function (err, buffer) {
                     if (err) {
@@ -295,8 +292,8 @@ app.post('/forgot-password', async (req, res) => {
                 })
             });
 
-            //Insert into db
-            // Create and expiration timestamp which is 15 minutes ahead of the current timestamp
+            // Insert into db
+            // Create an expiration timestamp which is 15 minutes ahead of the current time
             const currentTimestamp = new Date();
             const expirationTimestamp = date_fns.addMinutes(currentTimestamp, 15);
 
@@ -335,7 +332,8 @@ app.post('/forgot-password', async (req, res) => {
         }
     }
     catch (err) {
-        console.log(err);
+        if (err.message == 'NoSingleUser');
+            console.log("Zero or more than one row for email", email);
         res.render('error');
     }
     finally {
@@ -378,14 +376,13 @@ app.get('/reset-password', async (req, res) => {
             if (isValid)
                 res.render('reset_password', { username: username });
             else
-                throw "InvalidOrExpiredToken";
+                throw new Error("InvalidOrExpiredToken");
         }).catch(function (err) {
             console.log(err);
             res.render('error', { errMsg: "This link is invalid or has expired. Click <a href= '/forgot-password'>here</a> to generate a new password reset link." });
         })
     }
     catch (err) {
-        console.log(err);
         res.render('error');
     }
     finally {
@@ -416,7 +413,6 @@ app.post('/reset-password', async (req, res) => {
         console.log(err)
         res.render('error', { errMsg: 'An error occurred while resetting your password. Click <a href= "/forgot-password">here</a> to generate a new password reset link.' })
     }
-
 });
 
 app.get('/signout', (req, res) => {
@@ -440,7 +436,7 @@ app.post('/updateProgress', async (req, res) => {
         progressVal = progressVal.substring(0, workoutID - 1) + newBit + progressVal.substring(workoutID, progressVal.length);
 
         //TODO update this logic and db to add column for each workout
-        
+
         await client.query(`UPDATE progress SET "${program}"=$2 WHERE id=$1`, [userid, progressVal]);
     }
     catch (err) {
@@ -464,23 +460,9 @@ async function getUsername(userid) {
     try {
         var client = await pool.connect();
         var result = await client.query("SELECT username FROM users WHERE id=$1", [userid]);
-    }
-    catch (err) {
-        res.render('error');
-    }
-    finally {
-        if (client)
-            client.release();
-    }
-
-    return result.rows[0].username;
-}
-
-async function getProgress(userid) {
-    try {
-        var client = await pool.connect();
-        // Query the database to get the string containing progress values
-        var result = await client.query("SELECT * FROM progress WHERE id=$1", [userid]); // get the progress for this specific user
+        if (result.rowCount != 1)
+            throw new Error('NoSingleRow');
+        return result.rows[0].username;
     }
     catch (err) {
         throw err
@@ -489,8 +471,22 @@ async function getProgress(userid) {
         if (client)
             client.release();
     }
+}
 
-    // Assuming that this progress query will always return one row (should check for this later)
-    // This progressStr is a 64 character string of 0's and 1's
-    return result.rows[0];
+async function getProgress(userid) {
+    try {
+        var client = await pool.connect();
+        // Query the database to get the strings containing progress values for this specific user
+        var result = await client.query("SELECT * FROM progress WHERE id=$1", [userid]);
+        if (result.rowCount != 1)
+            throw new Error('NoSingleRow');
+        return result.rows[0];
+    }
+    catch (err) {
+        throw err
+    }
+    finally {
+        if (client)
+            client.release();
+    }
 }
