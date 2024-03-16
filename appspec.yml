@@ -7,17 +7,17 @@ files:
     destination: /home/ec2-user/Running-App
 hooks:
   BeforeInstall:
-    - location: codedeploy_scripts/before_install.sh
+    - location: codedeploy_scripts/stop_service.sh
       timeout: 300
       runas: root
   AfterInstall:
-    - location: codedeploy_scripts/after_install.sh
+    - location: codedeploy_scripts/npm_install.sh
       timeout: 300
       runas: root
   ApplicationStart:
     - location: codedeploy_scripts/setup_systemd_env.sh
       timeout: 300
       runas: root
-    - location: codedeploy_scripts/application_start.sh
+    - location: codedeploy_scripts/start_service.sh
       timeout: 300
       runas: root

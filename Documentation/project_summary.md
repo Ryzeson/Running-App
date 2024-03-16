@@ -44,16 +44,33 @@ To stop the service: `sudo systemctl stop running-app`
 
 To reload the daemon after updating the service file: `sudo systemctl daemon-reload`
 
-## Code Deploy
+## Code Pipeline and Code Deploy
+I also wanted to implement some form of continuous integration, so that when I made a change to the application, this would be displayed immediately, without the need to recopy the latest code and start the application again. For this I used Code Pipeline. The general deployment workflow is as follows:
+
+1. I make a code change to the application, and push that change to GitHub
+2. CodePipeline sees this new code was pushed, and triggers CodeDeploy to make a deployment on my EC2 instance
+3. CodeDeploy deploys the application by following the instructions outlined in the `appspec.yml`file located at the root of the application
+4. The updated application can be seen in the browser
 
 ### `appspec.yml`
+This file instructs CodeDeploy on how and where to deploy the application. Included in this file are custom shell scripts that are run at various points (i.e., "hooks") in the deployment process, that are needed to carry out additional functionality. In my application these are:
 
-## Code Pipeline
+`stop_service.sh`
+* This stops the application if it is currently running via systemd
+
+`npm_install.sh`
+* This installs the necessary application dependencies via npm
+
+`setup_systemd_env.sh`
+* This dynamically creates the `environment.config` used by systemd. It retrieves and parses all environment variables from AWS Parameter store, as well as the instance's IPV4 address from its instance metadata. The IPV4 address changes every time the instance is stopped and started, so instead of having to manually update this every time, this script does it automatically.
+
+`start_service.sh`
+* Actually starts the application via systemd
+
+[Full list of AppSpec hooks](#https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-server)
 
 ## Parameter Store
 I chose to store the values required in the application's `.env` file in the AWS Parameter Store. I remember learning about both the Parameter Store and the Secrets Manager while studying for my AWS Associate Developer exam. I chose to use AWS Parameter Store over Secrets Manager because this seems to be the recommended solution for EC2 instances, has built-in encryption options, and Parameter Store is free. This turned out to be a very convenient and easy to use service.
-
-## Security (?)
 
 # Database
 
@@ -101,6 +118,13 @@ One issue that I ran into was the following: The user would check the 'Completed
 
 ## Separation of Server vs Client
 I already knew the separation of concerns between the sever and client, and which should do what, but it was still tricky at times to makes sure each has only the necessary and sufficient information to do its job properly. For example, after deciding to use session ids to keep track of logged in users, I had to think about what was necessary to pass between requests, and what I could leave out but retrieve when necessary, to ensure there was no security concern. To do this, I just passed around the user's arbitrary user id. Another salient moment was when I realized that I should actually have the code to generate the main workout progress tables located server-side, instead of as a client-side script like I had when this project was still just a static application.
+
+## Security
+Although not a large appilication, it still contains sensitive data, such as server configuration information (e.g., EC2 instance information, email server credentials, database credentials) and private user information (e.g., email and password), so I made sure to take the following necessary steps to protect this information.
+* The EC2 instance is configured with the correct inbound and outbound security roles, so that only the correct ports are exposed, limiting unwanted access.
+* Within AWS, the EC2 instance is configured with only the correct IAM roles, following the [principle of least privilege](#https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) so that it can only access and be accessed by the services required. Dealing with AIM roles and policies issues was a bit difficult to debug in my experience, especially when trying to give the correct access to get CodeDeploy to work, but this experience definitely helped me to understand these and internalize how they work.
+* All passwords and password reset tokens are also hashed, so that even if the data in the database was compromised, no personal user information would be at risk.
+* All configuration details are kept within an a separate configuration file that is excluded from git, so that none of my personal application details are ever publically visible. This seems obvious, but is something that can be easily forgotten or overlooked, so I made a conscious effort to prevent this mistake.
 
 # Acknowledgements
 I used countless resources during the making of this project, but I will highlight some of the best and most important ones below:
