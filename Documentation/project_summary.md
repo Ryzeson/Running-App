@@ -18,14 +18,31 @@ Express makes it very easy to setup the various routes needed for the node serve
 ## EJS (Embedded JavaScript)
 There were many times where I would want to render a page, but make some slight changes based on information in the server response. For example, I wanted to display the user's username on the main page, or display the appropriate error message to the user depending on what went wrong. To do this, I decided to use the templating language EJS. This also allowed me to adhere to DRY, as I could use EJS to include a header and footer on every page, and I would only need to update the respective header and footer files if I wanted to make any changes, instead of needing to update every file that used them. Working with this reminds me very much of PHP, as you can inject backend logic straight into an otherwise purely html page.
 
-# Hosting
-I wanted to host my application using the AWS EC2 service, because this is a fundamental service that I had never used before. I deployed previous projects using AWS Elastic Beanstalk, which is a lot more streamlined experience, but does a lot of the configuration work behind the scenes, so I thought it would be a good experience to work with an EC2 instance directly.
+# AWS
 
-I decided on an xxx instance, because this is the cheapest option, and my application is really small so there were no real processing or memory concerns. Copying the code to the instance by cloning my GitHub repository, starting the server and seeing the application running in a browser was mostly straightforward. The most difficult part was configuring the correct security rules, making sure the correct ports were accessible.
+## EC2
+I wanted to host my application using the AWS EC2 service because this is a fundamental service that I had never used before. I deployed previous projects using AWS Elastic Beanstalk, which is a lot more streamlined experience, but does a lot of the configuration work behind the scenes, so I thought it would be a good experience to work with an EC2 instance directly.
 
-### Shell
+I decided on an t2.micro instance, because this is the cheapest option, and my application is really small so there were no real processing or memory concerns. Copying the code to the instance by cloning my GitHub repository, starting the server and seeing the application running in a browser was mostly straightforward. The most difficult part was configuring the correct security rules, making sure the correct ports were accessible.
 
 ### systemd
+I could start the node server while connected to the EC2 instance, but the application would stop as soon as I disconnected from the instance. To keep the application running even while I was not actively connected, I learned I had to use a tool like systemd.
+
+The two important files for this to work properly are the following, located at `etc/systemd/system` in my EC2 instance:
+
+`running-app.service`: this defines the actual service, with the necessary scripts to run, environemt variables, and other configuration information
+
+`/running-app.service.d/environment.config`: this contains a list of environment variables used by the service file. It is identical in function and purpose to the `.env` file that I use locally; it is just that systemd uses its own set environment variables.
+
+Because the name of my service is `running-app.service`, the following commands are used to interact with it:
+
+To start the service: `sudo systemctl start running-app`
+
+To check the status: `sudo systemctl status running-app`
+
+To stop the service: `sudo systemctl stop running-app`
+
+To reload the daemon after updating the service file: `sudo systemctl daemon-reload`
 
 ## Code Deploy
 
