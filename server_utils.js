@@ -1,6 +1,6 @@
 module.exports = {
     createProgressTable: createProgressTable,
-    sendVerificationEmail: sendVerificationEmail
+    sendEmail: sendEmail
 };
 
 async function createProgressTable(progressStr, program) {
