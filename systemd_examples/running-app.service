@@ -1,0 +1,26 @@
+# systemd service file that runs the node server in the background, and restarts if necessary
+# Run with 'systemctl start running-app'
+# https://stackoverflow.com/questions/4018154/how-do-i-run-a-node-js-app-as-a-background-service
+[Unit]
+Description=Running App
+
+[Service]
+# ExecStartPre=/bin/bash -c '. /home/ec2-user/Running-App/setup.sh'
+ExecStart=/home/ec2-user/Running-App/server.js
+Restart=always
+User=root
+# Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
+Group=nobody
+
+# You can specify individual environment variables, like below
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+# Environment=DB_USER='postgres'
+
+# Alternatively, you can use the EnvironmentFile option that contains all variables, like below
+EnvironmentFile=/etc/systemd/system/running-app.service.d/environment.config
+
+WorkingDirectory=/home/ec2-user/Running-App
+
+[Install]
+WantedBy=multi-user.target

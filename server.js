@@ -187,7 +187,12 @@ app.post("/signup", async (req, res) => {
         var progressInsertParams = [req.body.username];
         await client.query(progressInsertQuery, progressInsertParams);
 
-        util.sendVerificationEmail(req.body.username, req.body.email, nodemailer);
+        // Construct and send verification email
+        var subject = 'Kale\'s Kilometers Email Verification';
+        var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + req.body.username;
+        var message = 'Click the following link to verify your email: <a href="' + href + '"><button>Click Here</button></a>';
+
+        util.sendEmail(subject, message, req.body.email, nodemailer);
 
         return res.sendFile(__dirname + '/signup_success.html');
     }
@@ -303,37 +308,16 @@ app.post('/forgot-password', async (req, res) => {
             console.log("Successfully inserted the password_reset_tokens table record");
 
             // Create and send reset email
+            var subject = 'Kale\'s Kilometers Password Reset';
             var href = 'http://' + process.env.IPV4 + ':3000/reset-password?token=' + token + '&username=' + username;
-
             var message = 'Reset your password by clicking the following link: <a href="' + href + '"><button>Click Here</button></a> This link will expire 15 minutes after it was sent. Do not share this email.';
+            util.sendEmail(subject, message, email, nodemailer);
 
-            var mailOptions = {
-                from: process.env.EMAIL,
-                to: email,
-                subject: 'Kale\'s Kilometers Password Reset',
-                html: message
-            };
-
-            var transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: process.env.EMAIL,
-                    pass: process.env.EMAIL_PASS
-                }
-            });
-
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent: ' + info.response);
-                }
-            });
         }
     }
     catch (err) {
         if (err.message == 'NoSingleUser');
-            console.log("Zero or more than one row for email", email);
+        console.log("Zero or more than one row for email", email);
         res.render('error');
     }
     finally {

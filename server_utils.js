@@ -39,16 +39,11 @@ async function createProgressTable(progressStr, program) {
 }
 
 
-function sendVerificationEmail(username, email, nodemailer) {
-    // Construct and send verification email
-    var href = 'http://' + process.env.IPV4 + ':3000/verify?username=' + username;
-
-    var message = 'Click the following link to verify your email: <a href="' + href + '"><button>Click Here</button></a>';
-
+function sendEmail(subject, message, email, nodemailer) {
     var mailOptions = {
         from: process.env.EMAIL,
         to: email,
-        subject: 'Kale\'s Kilometers Email Verification',
+        subject: subject,
         html: message
     };
 

@@ -96,15 +96,6 @@ The progress table has a unique id that is the foreign key of the users table's 
 ## password_reset_tokens
 This table has a composite key consisting of a user_id, a foreign key of the users table's id attribute, and a (hashed) password reset token. This table's key is more than just user_id, because a user can request a password reset link multiple times, which would create multiple records in the database. Each of these will have a unique reset token that is contained in the password reset link, though. This table also has a timestamp that is 15 minutes after the token was generated. The application will check to see if this token is not exipred before allowing the user to reset their password. This is added as a security measure, because while the tokens are made sufficiently long and entropic, we wouldn't want a potential hacker to have unlimited time to try and brute force the code contained in a password reset link.
 
-# User management
-
-## Session management
-
-## Forgot Password
-
-### bcrypt
-This library helps to hash passwords. You can even specify the number of "salt" rounds you want applied, depending on the complexity needed. I need to do more research about how different hashing methods, and how this works under the hood.
-
 # General Concepts
 
 ## Error Handling
@@ -119,12 +110,20 @@ One issue that I ran into was the following: The user would check the 'Completed
 ## Separation of Server vs Client
 I already knew the separation of concerns between the sever and client, and which should do what, but it was still tricky at times to makes sure each has only the necessary and sufficient information to do its job properly. For example, after deciding to use session ids to keep track of logged in users, I had to think about what was necessary to pass between requests, and what I could leave out but retrieve when necessary, to ensure there was no security concern. To do this, I just passed around the user's arbitrary user id. Another salient moment was when I realized that I should actually have the code to generate the main workout progress tables located server-side, instead of as a client-side script like I had when this project was still just a static application.
 
+## User/Session Management
+I used the "express-session" library for helping manage a user's current session. When they log in, I create a session with that user's userid. If they close the tab and navigate back to the website within a given amount of time, they are automatically logged back in. The signout button destroys this session and returns the user to the login screen. This is simple, but is something I didn't even really think about when starting the project, because it something I never worked with before.
+
+This led to certain bugs that I had to be careful about, such as making sure the correct user's data was being updated if separate session was created in a different web browser with another user. It also helped me solve certain issues, such as the user being able to bypass the signup/login functionality completely by just entering the url for the progress page. I now just implement a check on other pages to see if there is a session created with valid userid. This is an obvious issue in hindsight, but again something I had to think about and learn how to solve.
+
 ## Security
 Although not a large appilication, it still contains sensitive data, such as server configuration information (e.g., EC2 instance information, email server credentials, database credentials) and private user information (e.g., email and password), so I made sure to take the following necessary steps to protect this information.
 * The EC2 instance is configured with the correct inbound and outbound security roles, so that only the correct ports are exposed, limiting unwanted access.
 * Within AWS, the EC2 instance is configured with only the correct IAM roles, following the [principle of least privilege](#https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) so that it can only access and be accessed by the services required. Dealing with AIM roles and policies issues was a bit difficult to debug in my experience, especially when trying to give the correct access to get CodeDeploy to work, but this experience definitely helped me to understand these and internalize how they work.
 * All passwords and password reset tokens are also hashed, so that even if the data in the database was compromised, no personal user information would be at risk.
 * All configuration details are kept within an a separate configuration file that is excluded from git, so that none of my personal application details are ever publically visible. This seems obvious, but is something that can be easily forgotten or overlooked, so I made a conscious effort to prevent this mistake.
+
+### bcrypt
+This library helps to hash passwords. You can even specify the number of "salt" rounds you want applied, depending on the complexity needed. I need to do more research about different hashing methods, and how this works under the hood.
 
 # Acknowledgements
 I used countless resources during the making of this project, but I will highlight some of the best and most important ones below:
