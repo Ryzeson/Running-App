@@ -18,9 +18,10 @@ Express makes it very easy to setup the various routes needed for the node serve
 ## EJS (Embedded JavaScript)
 There were many times where I would want to render a page, but make some slight changes based on information in the server response. For example, I wanted to display the user's username on the main page, or display the appropriate error message to the user depending on what went wrong. To do this, I decided to use the templating language EJS. This also allowed me to adhere to DRY, as I could use EJS to include a header and footer on every page, and I would only need to update the respective header and footer files if I wanted to make any changes, instead of needing to update every file that used them. Working with this reminds me very much of PHP, as you can inject backend logic straight into an otherwise purely html page.
 
-# AWS
+# Hosting
+I wanted to host my application using the AWS EC2 service, because this is a fundamental service that I had never used before. I deployed previous projects using AWS Elastic Beanstalk, which is a lot more streamlined experience, but does a lot of the configuration work behind the scenes, so I thought it would be a good experience to work with an EC2 instance directly.
 
-## EC2
+I decided on an xxx instance, because this is the cheapest option, and my application is really small so there were no real processing or memory concerns. Copying the code to the instance by cloning my GitHub repository, starting the server and seeing the application running in a browser was mostly straightforward. The most difficult part was configuring the correct security rules, making sure the correct ports were accessible.
 
 ### Shell
 
