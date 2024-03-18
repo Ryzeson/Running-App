@@ -437,18 +437,14 @@ app.post('/updateProgress', async (req, res) => {
 })
 
 // Load SSL certificate and key
-// const options = {
-//     key: fs.readFileSync(__dirname + '/extras/ssl/server.key'),
-//     cert: fs.readFileSync(__dirname + '/extras/ssl/server.crt')
-// };
+const options = {
+    key: fs.readFileSync(process.env.SSL_KEY_PATH),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH)
+};
 
-// const server = https.createServer(options, app);
+const server = https.createServer(options, app);
 
-// server.listen(port, function () {
-//     console.log("Listening on: " + port);
-// });
-
-app.listen(port, function () {
+server.listen(port, function () {
     console.log("Listening on: " + port);
 });
 
