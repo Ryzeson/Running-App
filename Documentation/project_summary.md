@@ -44,6 +44,34 @@ To stop the service: `sudo systemctl stop running-app`
 
 To reload the daemon after updating the service file: `sudo systemctl daemon-reload`
 
+## Route 53 and SSL/TLS
+### Research / Thought Process
+One of the last things I did was get my EC2 instance configured with an SSL/TLS certiciate so users could connect using https. Networking is not my strong suit, so this took me a fair bit of research. Many online tutorials (including the official AWS guide) required use of an additional webserver like apache or nginx for to get this working These made sense, but I didn't want to deal with an additional tool or steps right now, when my research showed it should  be possible with just node. I got this working locally using self-signed certificates by following this [guide](#https://akshitb.medium.com/how-to-run-https-on-localhost-a-step-by-step-guide-c61fde893771), which made use of the node https package and openssl.
+
+When I attempted to issue an ssl certificate to the EC2 instance using certbot, I got an error because it could not issue an cert to a bare IP address. I immediately though I had to buy another domain name, but because I wanted to keep the budget of this project as small as possible, I did some more research. I realized I could use a *subdomain* of ryzeson.org, which is a domain name I already own. So while www.ryzeson.org would still point to my statically hosted GitHub Pages website, I could make kaleskilometers.ryzeson.org point to this EC2 instance.
+
+### My steps to get https working:
+
+1. Install Let's Encrypt's certbot on the EC2 isntance
+```
+sudo dnf install -y augeas-libs
+sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip
+sudo /opt/certbot/bin/pip install certbot certbot-apache
+sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
+```
+
+2. Create an A record to point my subdomain to the IP instance of the EC2 instance. For example: 
+`kaleskilometers.ryzeson.org. 300 IN     A       <IP OF EC2 INSTANCE>`
+
+3. Install the SSL certificate on the EC2 instance by running the below command and following the prompts. 
+`sudo certbot certonly --standalone`
+
+Tips / Notes / Debugging:
+* Becuase I am not using an elastic IP address, the A record in step 2 will need to be updated every time the EC2 instance is stopped and started again.
+* Make sure the port of the application is using 443 (https) and the inbound/outbound rules of the EC2 instance allow both IPV4 and IPV6 traffic to this port.
+* Make sure the node application's key and certificate path is configured to use the new location of the generated files in step 3.
+
 ## Code Pipeline and Code Deploy
 I also wanted to implement some form of continuous integration, so that when I made a change to the application, this would be displayed immediately, without the need to recopy the latest code and start the application again. For this I used Code Pipeline. The general deployment workflow is as follows:
 
@@ -71,6 +99,9 @@ This file instructs CodeDeploy on how and where to deploy the application. Inclu
 
 ## Parameter Store
 I chose to store the values required in the application's `.env` file in the AWS Parameter Store. I remember learning about both the Parameter Store and the Secrets Manager while studying for my AWS Associate Developer exam. I chose to use AWS Parameter Store over Secrets Manager because this seems to be the recommended solution for EC2 instances, has built-in encryption options, and Parameter Store is free. This turned out to be a very convenient and easy to use service.
+
+## EC2 Instance Connect + AWS Cloudshell
+EC2 Instance Connect is my preferred way to interact with and navigate within the EC2 instance. It is available from the AWS console within one click of the EC2 menu, and is identical to connecting to the instance via SSH. Similarly, AWS Cloudshell let's you run Linux / AWS CLI commands, which is handy in my case because I use Windows. I primarily used this testing Parameter Store commands used in the CodeDeploy scripts and for running `dig` commands while debugging the SSL certificate installation.
 
 # Database
 
