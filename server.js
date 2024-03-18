@@ -16,6 +16,8 @@ const { Pool } = require('pg'); // Package for connecting to Postgres db
 const session = require("express-session"); // Used for storing and retriving session state (e.g., userid)
 const crypto = require('crypto') // used to generate a sufficiently long and entropic token used for password reset token
 const date_fns = require('date-fns') // used for date operations, specifically for creating an expiration timestamp for the password reset table
+const https = require('https'); // Required to create an https server, instead of just http
+const fs = require('fs') // "File System"; Required to read the ssl certificate and key
 
 const util = require('./server_utils');
 
@@ -434,10 +436,21 @@ app.post('/updateProgress', async (req, res) => {
     res.send(progressVal);
 })
 
+// Load SSL certificate and key
+// const options = {
+//     key: fs.readFileSync(__dirname + '/extras/ssl/server.key'),
+//     cert: fs.readFileSync(__dirname + '/extras/ssl/server.crt')
+// };
+
+// const server = https.createServer(options, app);
+
+// server.listen(port, function () {
+//     console.log("Listening on: " + port);
+// });
+
 app.listen(port, function () {
     console.log("Listening on: " + port);
 });
-
 
 // Helper functions
 async function getUsername(userid) {

@@ -16,6 +16,7 @@ echo "# /etc/systemd/system/running-app.service.d/environment.conf" >> $FILEPATH
 echo "[Service]" >> $FILEPATH
 echo "$PS_PARAMS" >> $FILEPATH
 echo "IPV4=$IPV4" >> $FILEPATH
+echo "PORT=80" >> $FILEPATH
 
 # We don't want quotes on the DB_PORT env variable, so remove them
 sed -i "/DB_PORT/ s/'//g" $FILEPATH
