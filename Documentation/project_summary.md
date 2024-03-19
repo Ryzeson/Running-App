@@ -2,18 +2,18 @@
 The purpose of this document is to detail the technology, tools, languages, frameworks, concepts, skills, and any other ideas that I encountered while building this project. This document was created mostly for my sake, in order to remember, reference, and solidify all of the many things I learned throughout this process, but will also serve to highlight all the technological facets that this project touches upon.
 
 # JavaScript
-When I started this project, I made some simple JavaScript games in the past, but this introduced me to more intermediate concepts for the first time.
+When I started this project, I only had a few simple JavaScript projects under my belt. This introduced me to more intermediate and advanced concepts for the first time.
 
 ## Promises and Async/Await
 
-I don't think it is an exageration to say that promises and async/await calls, along with callbacks, were some of the most challenging programming concepts I ever had to wrap my head around. I knew I had to make an effort to fully understand these, as they are central to the language, but I will admit that they broke my brain many times in the process. There is nothing even really that complex about them, but this asynchrnonous paradigm is just so unlike what I have worked with before, that it took me many tries before using them clicked for me.
+I don't think it is an exaggeration to say that promises and async/await calls, along with callbacks, were some of the most challenging programming concepts I ever had to wrap my head around. I knew I had to make an effort to fully understand these, as they are central to the language, but I will admit that they broke my brain many times in the process. There is nothing even really that complex about them, but this asynchronous paradigm is just so unlike what I have worked with before, that it took me many tries before using them clicked for me.
 
-Inside the folder `learning_examples` are some files that explore what Promises are, how the resolve / reject functionality works, and promises differ from async/await. I needed to create these examples to really understand for myself how these concepts work and clear up some misconceptions I had. Hoepfully these can help you too, if you are also confused like I was!
+Inside the folder `learning_examples` are some files that explore what Promises are, how the resolve / reject functionality works, and how promises differ from async/await. I needed to create these examples to really understand for myself how these concepts work and clear up some misconceptions I had. Hopefully these can help you too, if you are also confused like I was!
 
 Additionally, taking methods that I wrote promises, and rewriting them using the async/await really helped with understanding the differences. By doing this, I finally understood the true power and usefulness of async/await.
 
 # Node + Express
-Express makes it very easy to setup the various routes needed for the node server. The biggest initial challenges working with node and express were understanding what data is actually being sent in the request and response variables, why this is a callback, and middleware.  
+Express makes it very easy to set up the various routes needed for the node server. The biggest initial challenges working with node and express were understanding what data is actually being sent in the request and response variables, why this is a callback, and middleware.  
 
 ## EJS (Embedded JavaScript)
 There were many times where I would want to render a page, but make some slight changes based on information in the server response. For example, I wanted to display the user's username on the main page, or display the appropriate error message to the user depending on what went wrong. To do this, I decided to use the templating language EJS. This also allowed me to adhere to DRY, as I could use EJS to include a header and footer on every page, and I would only need to update the respective header and footer files if I wanted to make any changes, instead of needing to update every file that used them. Working with this reminds me very much of PHP, as you can inject backend logic straight into an otherwise purely html page.
@@ -23,14 +23,14 @@ There were many times where I would want to render a page, but make some slight 
 ## EC2
 I wanted to host my application using the AWS EC2 service because this is a fundamental service that I had never used before. I deployed previous projects using AWS Elastic Beanstalk, which is a lot more streamlined experience, but does a lot of the configuration work behind the scenes, so I thought it would be a good experience to work with an EC2 instance directly.
 
-I decided on an t2.micro instance, because this is the cheapest option, and my application is really small so there were no real processing or memory concerns. Copying the code to the instance by cloning my GitHub repository, starting the server and seeing the application running in a browser was mostly straightforward. The most difficult part was configuring the correct security rules, making sure the correct ports were accessible.
+I decided on a t2.micro instance, because this is the cheapest option, and my application is really small so there were no real processing or memory concerns. Copying the code to the instance by cloning my GitHub repository, starting the server and seeing the application running in a browser was mostly straightforward. The most difficult part was configuring the correct security rules, making sure the correct ports were accessible.
 
 ### systemd
 I could start the node server while connected to the EC2 instance, but the application would stop as soon as I disconnected from the instance. To keep the application running even while I was not actively connected, I learned I had to use a tool like systemd.
 
 The two important files for this to work properly are the following, located at `etc/systemd/system` in my EC2 instance:
 
-`running-app.service`: this defines the actual service, with the necessary scripts to run, environemt variables, and other configuration information
+`running-app.service`: this defines the actual service, with the necessary scripts to run, environment variables, and other configuration information
 
 `/running-app.service.d/environment.config`: this contains a list of environment variables used by the service file. It is identical in function and purpose to the `.env` file that I use locally; it is just that systemd uses its own set environment variables.
 
@@ -46,13 +46,13 @@ To reload the daemon after updating the service file: `sudo systemctl daemon-rel
 
 ## Route 53 and SSL/TLS
 ### Research / Thought Process
-One of the last things I did was get my EC2 instance configured with an SSL/TLS certiciate so users could connect using https. Networking is not my strong suit, so this took me a fair bit of research. Many online tutorials (including the official AWS guide) required use of an additional webserver like apache or nginx for to get this working These made sense, but I didn't want to deal with an additional tool or steps right now, when my research showed it should  be possible with just node. I got this working locally using self-signed certificates by following this [guide](#https://akshitb.medium.com/how-to-run-https-on-localhost-a-step-by-step-guide-c61fde893771), which made use of the node https package and openssl.
+One of the last things I did was get my EC2 instance configured with an SSL/TLS certificate so users could connect using https. Networking is not my strong suit, so this took me a fair bit of research. Many online tutorials (including the official AWS guide) required use of an additional webserver like apache or nginx for to get this working These made sense, but I didn't want to deal with an additional tool or steps right now, when my research showed it should  be possible with just node. I got this working locally using self-signed certificates by following this [guide](https://akshitb.medium.com/how-to-run-https-on-localhost-a-step-by-step-guide-c61fde893771), which made use of the node https package and openssl.
 
-When I attempted to issue an ssl certificate to the EC2 instance using certbot, I got an error because it could not issue an cert to a bare IP address. I immediately though I had to buy another domain name, but because I wanted to keep the budget of this project as small as possible, I did some more research. I realized I could use a *subdomain* of ryzeson.org, which is a domain name I already own. So while www.ryzeson.org would still point to my statically hosted GitHub Pages website, I could make kaleskilometers.ryzeson.org point to this EC2 instance.
+When I attempted to issue an ssl certificate to the EC2 instance using certbot, I got an error because it could not issue an cert to a bare IP address. I immediately thought I had to buy another domain name, but because I wanted to keep the budget of this project as small as possible, I did some more research. I realized I could use a *subdomain* of ryzeson.org, which is a domain name I already own. So while www.ryzeson.org would still point to my statically hosted GitHub Pages website, I could make kaleskilometers.ryzeson.org point to this EC2 instance.
 
 ### My steps to get https working:
 
-1. Install Let's Encrypt's certbot on the EC2 isntance
+1. Install Let's Encrypt's certbot on the EC2 instance
 ```
 sudo dnf install -y augeas-libs
 sudo python3 -m venv /opt/certbot/
@@ -68,7 +68,7 @@ sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 `sudo certbot certonly --standalone`
 
 Tips / Notes / Debugging:
-* Becuase I am not using an elastic IP address, the A record in step 2 will need to be updated every time the EC2 instance is stopped and started again.
+* Because I am not using an elastic IP address, the A record in step 2 will need to be updated every time the EC2 instance is stopped and started again.
 * Make sure the port of the application is using 443 (https) and the inbound/outbound rules of the EC2 instance allow both IPV4 and IPV6 traffic to this port.
 * Make sure the node application's key and certificate path is configured to use the new location of the generated files in step 3.
 
@@ -81,7 +81,7 @@ I also wanted to implement some form of continuous integration, so that when I m
 4. The updated application can be seen in the browser
 
 ### `appspec.yml`
-This file instructs CodeDeploy on how and where to deploy the application. Included in this file are custom shell scripts that are run at various points (i.e., "hooks") in the deployment process, that are needed to carry out additional functionality. In my application these are:
+This file instructs CodeDeploy on how and where to deploy the application. Included in this file are custom shell scripts that are run at various points (i.e., "hooks") in the deployment process which are needed to carry out additional functionality. In my application these are:
 
 `stop_service.sh`
 * This stops the application if it is currently running via systemd
@@ -95,13 +95,13 @@ This file instructs CodeDeploy on how and where to deploy the application. Inclu
 `start_service.sh`
 * Actually starts the application via systemd
 
-[Full list of AppSpec hooks](#https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-server)
+[Full list of AppSpec hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-server)
 
 ## Parameter Store
 I chose to store the values required in the application's `.env` file in the AWS Parameter Store. I remember learning about both the Parameter Store and the Secrets Manager while studying for my AWS Associate Developer exam. I chose to use AWS Parameter Store over Secrets Manager because this seems to be the recommended solution for EC2 instances, has built-in encryption options, and Parameter Store is free. This turned out to be a very convenient and easy to use service.
 
 ## EC2 Instance Connect + AWS Cloudshell
-EC2 Instance Connect is my preferred way to interact with and navigate within the EC2 instance. It is available from the AWS console within one click of the EC2 menu, and is identical to connecting to the instance via SSH. Similarly, AWS Cloudshell let's you run Linux / AWS CLI commands, which is handy in my case because I use Windows. I primarily used this testing Parameter Store commands used in the CodeDeploy scripts and for running `dig` commands while debugging the SSL certificate installation.
+EC2 Instance Connect is my preferred way to interact with and navigate within the EC2 instance. It is available from the AWS console within one click of the EC2 menu and is identical to connecting to the instance via SSH. Similarly, AWS Cloudshell lets you run Linux / AWS CLI commands, which is handy in my case because I use Windows. I primarily used this testing Parameter Store commands used in the CodeDeploy scripts and for running `dig` commands while debugging the SSL certificate installation.
 
 # Database
 
@@ -117,41 +117,41 @@ Below is the ERD for this application's database. It is very simple, but even th
 ![alt text](../db/running_app_erd.png)
 
 ## users
-The user table has an auto-generated integer id, that is used as the primary key to uniquely identify each user in the system. They also have a unique username. The username must be unique because that is what they use to login. I did not make the username the primary key for this table, because I thought about potential functionality of letting the user change their username, which is a common use case in many other applications. In the case that the username was the primary key, you would also need to update this in all other tables where it was being used as a foreign key. Additionally, it is much easier to use a short arbitrary id when joining to other tables and store in the user session, than it is to use a username, in my opinion.
+The user table has an auto-generated integer id that is used as the primary key to uniquely identify each user in the system. They also have a unique username. The username must be unique because that is what they use to login. I did not make the username the primary key for this table, because I thought about potential functionality of letting the user change their username, which is a common use case in many other applications. In the case that the username was the primary key, you would also need to update this in all other tables where it was being used as a foreign key. Additionally, it is much easier to use a short arbitrary id when joining to other tables and store in the user session, than it is to use a username, in my opinion.
 
-This table also contains the user's hashed password, a unique email, and 'verified' flag. The email must be unique because this is what is used to reset their password. If multiple users shared the same email, the application would not know which user's password to reset. The 'verified' flag determines if the user has clicked the link in the email verificaiton link. If this step is not done, the user is not allowed to login.
+This table also contains the user's hashed password, a unique email, and 'verified' flag. The email must be unique because this is what is used to reset their password. If multiple users shared the same email, the application would not know which user's password to reset. The 'verified' flag determines if the user has clicked the link in the email verification link. If this step is not done, the user is not allowed to login.
 
 ## progress
-The progress table has a unique id that is the foreign key of the users table's id attribute. When a user signs up, a record in this progress table is created at the same time as the record in the users table is created. Every other column in this table corresponds to the user's progress for a specific program (e.g., column _5k stores their 5k program progress). Each of thse is represented as a string of bits of 0's and 1's, representing which days are in progress or completed.
+The progress table has a unique id that is the foreign key of the users table's id attribute. When a user signs up, a record in this progress table is created at the same time as the record in the users table is created. Every other column in this table corresponds to the user's progress for a specific program (e.g., column _5k stores their 5k program progress). Each of these is represented as a string of bits of 0's and 1's, representing which days are in progress or completed.
 
 ## password_reset_tokens
-This table has a composite key consisting of a user_id, a foreign key of the users table's id attribute, and a (hashed) password reset token. This table's key is more than just user_id, because a user can request a password reset link multiple times, which would create multiple records in the database. Each of these will have a unique reset token that is contained in the password reset link, though. This table also has a timestamp that is 15 minutes after the token was generated. The application will check to see if this token is not exipred before allowing the user to reset their password. This is added as a security measure, because while the tokens are made sufficiently long and entropic, we wouldn't want a potential hacker to have unlimited time to try and brute force the code contained in a password reset link.
+This table has a composite key consisting of a user_id, a foreign key of the users table's id attribute, and a (hashed) password reset token. This table's key is more than just user_id, because a user can request a password reset link multiple times, which would create multiple records in the database. Each of these will have a unique reset token that is contained in the password reset link, though. This table also has a timestamp that is 15 minutes after the token was generated. The application will check to see if this token has not expired before allowing the user to reset their password. This is added as a security measure, because while the tokens are made sufficiently long and entropic, we wouldn't want a potential hacker to have unlimited time to try and brute force the code contained in a password reset link.
 
 # General Concepts
 
 ## Error Handling
-This was another area that should have been relatively straightforward, but I found to be tricky coming from a Java background. Java lets you handle different types of exceptions with the use of multiple catch blocks. You are only allowed one catch block for each try block in JavaScript, so if you need more control handling specific errors, you must do so using if/else within the catch block. Also, it is wise to either make your custom errors either extend the Error class, or throw actual Error objects with unique names, instead of just throwing strings/other objects like was doing for most of this project.
+This was another area that should have been relatively straightforward, but I found it to be tricky coming from a Java background. Java lets you handle different types of exceptions with the use of multiple catch blocks. You are only allowed one catch block for each try block in JavaScript, so if you need more control handling specific errors, you must do so using if/else within the catch block. Also, it is wise to either make your custom errors either extend the Error class, or throw actual Error objects with unique names, instead of just throwing strings/other objects like was doing for most of this project.
 
 ## Ajax
 This was actually my first time using and learning about ajax. In this project, an ajax call allowed me to update the progress table dynamically, without the need to refresh the page or send back an entirely new page upon recieving a response from the server. I was going to just use the 204 response code (no content) which would have served the same purpose, but the 'Completed' checkbox did not have a submit button on its form, so I couldn't trigger a post route.
 
 ## Pessimistic Updating
-One issue that I ran into was the following: The user would check the 'Completed' box, and the UI would update immediately (i.e., the box becomes checked and the table cell would become grayed out). Although this happens almost instantly when this ajax request is succesful, if there was an error updating the database, the user would still see that the box become grayed out. That is, they would see a signal that their action was successful, without any indication that their action failed. If they were to refresh the page or log back in at a later time, they would see that their progress was not actually saved when they thought it was, which is a bad user experience. To solve this, I actually disable all further interactive user actions, and change the cursor to a loading icon until the ajax response reports back that the update has been completed successfully. It is a change that is barely noticeable when things are working as expected, but becomes very important if unexpected issues were to arise.
+One issue that I ran into was the following: The user would check the 'Completed' box, and the UI would update immediately (i.e., the box becomes checked and the table cell would become grayed out). Although this happens almost instantly when this ajax request is successful, if there was an error updating the database, the user would still see that the box become grayed out. That is, they would see a signal that their action was successful, without any indication that their action failed. If they were to refresh the page or log back in at a later time, they would see that their progress was not actually saved when they thought it was, which is a bad user experience. To solve this, I actually disable all further interactive user actions, and change the cursor to a loading icon until the ajax response reports back that the update has been completed successfully. It is a change that is barely noticeable when things are working as expected, but becomes very important if unexpected issues were to arise.
 
 ## Separation of Server vs Client
-I already knew the separation of concerns between the sever and client, and which should do what, but it was still tricky at times to makes sure each has only the necessary and sufficient information to do its job properly. For example, after deciding to use session ids to keep track of logged in users, I had to think about what was necessary to pass between requests, and what I could leave out but retrieve when necessary, to ensure there was no security concern. To do this, I just passed around the user's arbitrary user id. Another salient moment was when I realized that I should actually have the code to generate the main workout progress tables located server-side, instead of as a client-side script like I had when this project was still just a static application.
+I already knew the separation of concerns between the server and client, and which should do what, but it was still tricky at times to makes sure each has only the necessary and sufficient information to do its job properly. For example, after deciding to use session ids to keep track of logged in users, I had to think about what was necessary to pass between requests, and what I could leave out but retrieve when necessary, to ensure there was no security concern. To do this, I just passed around the user's arbitrary user id. Another salient moment was when I realized that I should actually have the code to generate the main workout progress tables located server-side, instead of as a client-side script like I had when this project was still just a static application.
 
 ## User/Session Management
-I used the "express-session" library for helping manage a user's current session. When they log in, I create a session with that user's userid. If they close the tab and navigate back to the website within a given amount of time, they are automatically logged back in. The signout button destroys this session and returns the user to the login screen. This is simple, but is something I didn't even really think about when starting the project, because it something I never worked with before.
+I used the "express-session" library to help manage a user's current session. When they log in, I create a session with that user's userid. If they close the tab and navigate back to the website within a given amount of time, they are automatically logged back in. The sign out button destroys this session and returns the user to the login screen. This is simple, but is something I didn't even really think about when starting the project, because it is something I never worked with before.
 
 This led to certain bugs that I had to be careful about, such as making sure the correct user's data was being updated if separate session was created in a different web browser with another user. It also helped me solve certain issues, such as the user being able to bypass the signup/login functionality completely by just entering the url for the progress page. I now just implement a check on other pages to see if there is a session created with valid userid. This is an obvious issue in hindsight, but again something I had to think about and learn how to solve.
 
 ## Security
-Although not a large appilication, it still contains sensitive data, such as server configuration information (e.g., EC2 instance information, email server credentials, database credentials) and private user information (e.g., email and password), so I made sure to take the following necessary steps to protect this information.
+Although not a large application, it still contains sensitive data, such as server configuration information (e.g., EC2 instance information, email server credentials, database credentials) and private user information (e.g., email and password), so I made sure to take the following necessary steps to protect this information.
 * The EC2 instance is configured with the correct inbound and outbound security roles, so that only the correct ports are exposed, limiting unwanted access.
-* Within AWS, the EC2 instance is configured with only the correct IAM roles, following the [principle of least privilege](#https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) so that it can only access and be accessed by the services required. Dealing with AIM roles and policies issues was a bit difficult to debug in my experience, especially when trying to give the correct access to get CodeDeploy to work, but this experience definitely helped me to understand these and internalize how they work.
+* Within AWS, the EC2 instance is configured with only the correct IAM roles, following the [principle of least privilege](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) so that it can only access and be accessed by the services required. Dealing with AIM roles and policies issues was a bit difficult to debug in my experience, especially when trying to give the correct access to get CodeDeploy to work, but this experience definitely helped me to understand these and internalize how they work.
 * All passwords and password reset tokens are also hashed, so that even if the data in the database was compromised, no personal user information would be at risk.
-* All configuration details are kept within an a separate configuration file that is excluded from git, so that none of my personal application details are ever publically visible. This seems obvious, but is something that can be easily forgotten or overlooked, so I made a conscious effort to prevent this mistake.
+* All configuration details are kept within an a separate configuration file that is excluded from git, so that none of my personal application details are ever publicly visible. This seems obvious, but is something that can be easily forgotten or overlooked, so I made a conscious effort to prevent this mistake.
 
 ### bcrypt
 This library helps to hash passwords. You can even specify the number of "salt" rounds you want applied, depending on the complexity needed. I need to do more research about different hashing methods, and how this works under the hood.
@@ -159,9 +159,9 @@ This library helps to hash passwords. You can even specify the number of "salt" 
 # Acknowledgements
 I used countless resources during the making of this project, but I will highlight some of the best and most important ones below:
 
-* [Angela Yu's Web Development Udemy Course](#https://www.udemy.com/course/the-complete-web-development-bootcamp/?utm_source=adwords&utm_medium=udemyads&utm_campaign=LongTail_la.EN_cc.US&utm_content=deal4584&utm_term=_._ag_81829991707_._ad_532193842022_._kw__._de_c_._dm__._pl__._ti_dsa-1007766171312_._li_9006788_._pd__._&matchtype=&gad_source=1&gclid=Cj0KCQjw-r-vBhC-ARIsAGgUO2AtKNpkbEsFWsSRePRq3KJYs3dDAQbd4d2M2Pmxzne2nr-rdBU4s0oaArdcEALw_wcB&couponCode=2021PM20)
-* Understanding the order of execution between synchronous, asynchronous, and promises: This [post](#https://stackoverflow.com/questions/63257952/understanding-async-js-with-promises-task-and-job-queue) and [video](#https://www.youtube.com/watch?v=28AXSTCpsyU)
-* [Deploying a node application to EC2](#https://www.youtube.com/watch?v=oHAQ3TzUTro)
-* [Implementing a 'Forgot Password' workflow](#https://supertokens.com/blog/implementing-a-forgot-password-flow#)
+* [Angela Yu's Web Development Udemy Course](https://www.udemy.com/course/the-complete-web-development-bootcamp/?utm_source=adwords&utm_medium=udemyads&utm_campaign=LongTail_la.EN_cc.US&utm_content=deal4584&utm_term=_._ag_81829991707_._ad_532193842022_._kw__._de_c_._dm__._pl__._ti_dsa-1007766171312_._li_9006788_._pd__._&matchtype=&gad_source=1&gclid=Cj0KCQjw-r-vBhC-ARIsAGgUO2AtKNpkbEsFWsSRePRq3KJYs3dDAQbd4d2M2Pmxzne2nr-rdBU4s0oaArdcEALw_wcB&couponCode=2021PM20)
+* Understanding the order of execution between synchronous, asynchronous, and promises: This [post](https://stackoverflow.com/questions/63257952/understanding-async-js-with-promises-task-and-job-queue) and [video](https://www.youtube.com/watch?v=28AXSTCpsyU)
+* [Deploying a node application to EC2](https://www.youtube.com/watch?v=oHAQ3TzUTro)
+* [Implementing a 'Forgot Password' workflow](https://supertokens.com/blog/implementing-a-forgot-password-flow#)
 
 For a full list of all resources and notes, see `daily_log.txt`.
