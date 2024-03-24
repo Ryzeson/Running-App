@@ -8,12 +8,11 @@ async function createProgressTable(progressStr, program) {
     var response = await fetch(`https://www.ryzeson.org/Running-App/program_json/${program}.json`);
     var data = await response.json();
 
-    // Creates the actual html table
+    // Create the actual html table
     const rowLength = 7;
     var currentRow = -1;
 
     let table = '<table>';
-    // table += '<tr><th colspan="8">Day of the Week</th></tr>';
     table += '<tr><th></th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th></tr>'
     data.workouts.forEach(workout => {
         let rowNum = Math.floor((workout.id - 1) / rowLength);
@@ -39,10 +38,10 @@ async function createProgressTable(progressStr, program) {
 }
 
 
-function sendEmail(subject, message, email, nodemailer) {
+function sendEmail(subject, message, toEmail, nodemailer) {
     var mailOptions = {
         from: process.env.EMAIL,
-        to: email,
+        to: toEmail,
         subject: subject,
         html: message
     };
