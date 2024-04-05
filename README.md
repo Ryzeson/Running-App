@@ -39,13 +39,11 @@ To run this project locally, follow the below instructions.
     Navigate to `http://localhost:3000` in your web browser, where you should see the application running
 
 
-Note: This project is not currently publicly hosted, as it costs too much money for me to maintain :). If you have any trouble setting this project up or would like to see a publically hosted version, please feel free to message me.
+Note: This project is not currently publicly hosted, as it costs too much money for me to maintain :). If you have any trouble setting this project up or would like to see a publicly hosted version, please feel free to message me.
 
 
 ## What I learned
-At every step of this project, I felt like I was learning something new. This was my first full-scale Node.js application that I built, and my first time setting up a devops pipeline from scratch, so both of these were full of great learning experiences. To keep track of everything that I leanred, I created `project_summary.md`, a detailed list of project highlights, how they work, what I learned from them, and acknowledgements.
+At every step of this project, I felt like I was learning something new. This was my first full-scale Node.js application that I built, and my first time setting up a devops pipeline from scratch, so both of these were full of great learning experiences. To keep track of everything that I leanred, I created [`project_summary.md`](documentation/project_summary.md), a detailed list of project highlights, how they work, what I learned from them, and acknowledgements.
 
 ## How to use this project
 Please feel free to reference, use, and/or adapt any or all parts of this repository in any way you wish. You can also reach out to me for any questions, comments, or feedback!
-
-<!-- ## File Structure -->

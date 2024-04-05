@@ -164,4 +164,4 @@ I used countless resources during the making of this project, but I will highlig
 * [Deploying a node application to EC2](https://www.youtube.com/watch?v=oHAQ3TzUTro)
 * [Implementing a 'Forgot Password' workflow](https://supertokens.com/blog/implementing-a-forgot-password-flow#)
 
-For a full list of all resources and notes, see `daily_log.txt`.
+<!-- For a full list of all resources and notes, see `daily_log.txt`. -->
