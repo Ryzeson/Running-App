@@ -28,7 +28,7 @@ To run this project locally, follow the below instructions.
     * Create a new database
     * Run `db_setup.sql` to create the necessary tables
     * Create a new file called `.env` in your main `Running-App` directory, and paste in the text from `sample.env` making sure to **use your own database connection information** instead:
-4. Navigate to the `Running-App` directory, and isntall the necessary dependencies
+4. Navigate to the `Running-App` directory, and install the necessary dependencies
     ```
     npm install
     ```
