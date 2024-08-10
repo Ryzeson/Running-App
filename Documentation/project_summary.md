@@ -10,7 +10,7 @@ I don't think it is an exaggeration to say that promises and async/await calls, 
 
 Inside the folder `learning_examples` are some files that explore what Promises are, how the resolve / reject functionality works, and how promises differ from async/await. I needed to create these examples to really understand for myself how these concepts work and clear up some misconceptions I had. Hopefully these can help you too, if you are also confused like I was!
 
-Additionally, taking methods that I wrote promises, and rewriting them using the async/await really helped with understanding the differences. By doing this, I finally understood the true power and usefulness of async/await.
+Additionally, taking methods that I wrote with promises, and rewriting them using the async/await really helped with understanding the differences. By doing this, I finally understood the true power and usefulness of async/await.
 
 # Node + Express
 Express makes it very easy to set up the various routes needed for the node server. The biggest initial challenges working with node and express were understanding what data is actually being sent in the request and response variables, why this is a callback, and middleware.  
@@ -46,7 +46,7 @@ To reload the daemon after updating the service file: `sudo systemctl daemon-rel
 
 ## Route 53 and SSL/TLS
 ### Research / Thought Process
-One of the last things I did was get my EC2 instance configured with an SSL/TLS certificate so users could connect using https. Networking is not my strong suit, so this took me a fair bit of research. Many online tutorials (including the official AWS guide) required use of an additional webserver like apache or nginx for to get this working These made sense, but I didn't want to deal with an additional tool or steps right now, when my research showed it should  be possible with just node. I got this working locally using self-signed certificates by following this [guide](https://akshitb.medium.com/how-to-run-https-on-localhost-a-step-by-step-guide-c61fde893771), which made use of the node https package and openssl.
+One of the last things I did was get my EC2 instance configured with an SSL/TLS certificate so users could connect using https. Networking is not my strong suit, so this took me a fair bit of research. Many online tutorials (including the official AWS guide) required use of an additional webserver like apache or nginx to get this working. These made sense, but I didn't want to deal with an additional tool or steps right now, when my research showed it should be possible with just node. I got this working locally using self-signed certificates by following this [guide](https://akshitb.medium.com/how-to-run-https-on-localhost-a-step-by-step-guide-c61fde893771), which made use of the node https package and openssl.
 
 When I attempted to issue an ssl certificate to the EC2 instance using certbot, I got an error because it could not issue an cert to a bare IP address. I immediately thought I had to buy another domain name, but because I wanted to keep the budget of this project as small as possible, I did some more research. I realized I could use a *subdomain* of ryzeson.org, which is a domain name I already own. So while www.ryzeson.org would still point to my statically hosted GitHub Pages website, I could make kaleskilometers.ryzeson.org point to this EC2 instance.
 
